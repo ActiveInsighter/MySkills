@@ -2,6 +2,9 @@
 type Json = Record<string, unknown>;
 type Rpc = { jsonrpc: '2.0'; id?: string | number | null; method: string; params?: Json };
 type Site = { origin: string; label: string };
+type SkillSummary = { name: string; title: string; description: string; originalDescription?: string; tags: string[]; url: string; skill_url: string; files_count: number };
+type SkillFile = { path: string; url: string; text: boolean; bytes: number; view?: string };
+const SKILL_INSTRUCTIONS = 'This server is a library of 10 reusable Skills for Fumadocs, frontend development, browser verification, Supabase and Postgres. Before starting a relevant task: (1) call list_skills(query?) to discover names, descriptions and triggers without loading bodies; broaden the query or omit it if no match. (2) Select only Skills relevant to the current task and call read_skill(name) to load their original SKILL.md. (3) Read only the specific rules/references needed using read_skill(name, path), resolving paths relative to that Skill root; available resource paths are returned with the entry. Do not eagerly load all Skills, all rules or large AGENTS.md bundles. Apply the selected guidance in the current project, respecting the user request and existing authorization. This server reads files only; it does not execute scripts, install dependencies or grant permission for external actions. Use get_index/read_doc/read_docs for reading website documentation by link. All content is public.';
 type Bindings = Pick<Env, 'ASSETS' | 'RATE_LIMITER'> & { SITES: Record<string, Site> };
 const versions = ['2025-11-25', '2025-06-18', '2025-03-26'];
 const block = (text: string) => ({ type: 'text' as const, text });
@@ -22,7 +25,9 @@ export function createMcp(env: Bindings) {
   const names = Object.keys(sites);
   const siteProperty = { type: 'string', enum: names, description: 'Required for relative paths; selects a configured site.' };
   const tools = [
-    { name: 'get_index', description: 'Get the live llms.txt index. Optional query filters by all space-separated keywords.', inputSchema: { type: 'object', properties: { site: siteProperty, query: { type: 'string' } }, required: ['site'] } },
+    { name: 'list_skills', description: 'Start here before a task: discover reusable Skills by name, description and trigger tags, WITHOUT loading their bodies. Optional query matches all space-separated keywords in Chinese or English. If no match, shorten the query or omit it. Select relevant Skills, then call read_skill(name). Do not load every Skill.', inputSchema: { type: 'object', properties: { query: { type: 'string', description: 'Task keywords, e.g. 组件, React, 性能, 登录, Supabase, RLS.' } } } },
+    { name: 'read_skill', description: 'Read a selected Skill on demand. Omit path to read its original SKILL.md and discover available resource paths. Then follow only task-relevant references with path relative to the Skill root, e.g. name=shadcn, path=rules/base-vs-radix.md. For a link inside a reference, resolve it relative to that reference directory. Do not preload all rules or large AGENTS.md bundles. Returns text only; scripts are never executed.', inputSchema: { type: 'object', properties: { name: { type: 'string', description: 'Exact Skill name returned by list_skills.' }, path: { type: 'string', description: 'Optional exact relative file path from the resource list. Default SKILL.md.' } }, required: ['name'] } },
+    { name: 'get_index', description: 'Get the lightweight website index, including Skill entry links and AI usage instructions. To choose a Skill for a task, prefer list_skills followed by read_skill. Optional query filters by all space-separated keywords.', inputSchema: { type: 'object', properties: { site: siteProperty, query: { type: 'string' } }, required: ['site'] } },
     { name: 'read_doc', description: 'Read one document as verbatim UTF-8 Markdown. Accepts a page URL or .md URL; paths require site.', inputSchema: { type: 'object', properties: { url: { type: 'string' }, site: siteProperty }, required: ['url'] } },
     { name: 'read_docs', description: 'Read up to 20 whole documents in parallel. Default max_chars 50000, maximum 100000. The first successful page is always returned whole; skipped/failed pages have structured retry status.', inputSchema: { type: 'object', properties: { urls: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 20 }, site: siteProperty, max_chars: { type: 'integer', minimum: 1000, maximum: 100000 } }, required: ['urls'] } },
   ].map(tool => ({ ...tool, annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } }));
@@ -39,7 +44,7 @@ export function createMcp(env: Bindings) {
     url.search = ''; url.hash = '';
     url.pathname = url.pathname.replace(/\/+$/, '');
     if (!url.pathname.endsWith('.md')) url.pathname += '.md';
-    if (url.pathname !== '/docs.md' && !url.pathname.startsWith('/docs/')) throw new Error('Only documentation links are allowed');
+    if (url.pathname !== '/docs.md' && !url.pathname.startsWith('/docs/') && !url.pathname.startsWith('/skill-files/')) throw new Error('Only documentation or Skill Markdown links are allowed');
     return url;
   }
 
@@ -51,7 +56,7 @@ export function createMcp(env: Bindings) {
     if (!response.ok) throw new Error(`Document returned HTTP ${response.status}: ${url}`);
     if (!response.body) return '';
     const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: false });
+    const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
     let bytes = 0, text = '';
     try {
       for (;;) {
@@ -67,7 +72,44 @@ export function createMcp(env: Bindings) {
     } finally { await reader.cancel(); }
   }
 
+  const catalogOrigin = Object.values(sites)[0]?.origin;
+  let catalogPromise: Promise<SkillSummary[]> | undefined;
+  const getCatalog = () => catalogPromise ??= fetchText(new URL('/skills.json', catalogOrigin)).then(text => {
+    const value: unknown = JSON.parse(text);
+    if (!Array.isArray(value)) throw new Error('Invalid Skill catalog');
+    return value as SkillSummary[];
+  });
+
   async function call(name: string, args: Json) {
+    if (name === 'list_skills') {
+      if (args.query !== undefined && typeof args.query !== 'string') throw new Error('query must be a string');
+      const keywords = typeof args.query === 'string' ? args.query.toLowerCase().split(/\s+/).filter(Boolean) : [];
+      const all = await getCatalog();
+      const selected = all.filter(skill => {
+        const haystack = [skill.name, skill.title, skill.description, skill.originalDescription, ...skill.tags].join(' ').toLowerCase();
+        return keywords.every(word => haystack.includes(word));
+      });
+      const summaries = selected.map(({ name, title, description, tags, url, skill_url, files_count }) => ({ name, title, description, tags, url, skill_url, files_count }));
+      const guidance = selected.length ? 'Choose only relevant Skills, then call read_skill with the exact name. Bodies have not been loaded.' : 'No matching Skills. Shorten the query or call list_skills without query; do not guess names.';
+      return { content: [block(`${guidance}\n\n${summaries.map(skill => `- ${skill.name} | ${skill.title}: ${skill.description}\n  Triggers: ${skill.tags.join(', ')}\n  Entry: ${skill.skill_url}`).join('\n')}`)], structuredContent: { count: selected.length, total: all.length, skills: summaries, next_step: guidance } };
+    }
+    if (name === 'read_skill') {
+      const skill = (await getCatalog()).find(skill => skill.name === args.name);
+      if (!skill) throw new Error('Unknown Skill. Use list_skills to discover valid names.');
+      if (args.path !== undefined && typeof args.path !== 'string') throw new Error('path must be a string');
+      const requested = args.path === undefined ? 'SKILL.md' : String(args.path).replace(/^\.\//, '');
+      const manifest = JSON.parse(await fetchText(new URL(`/skill-files/${skill.name}/manifest.json`, catalogOrigin))) as { files: SkillFile[] };
+      // Exact manifest membership prevents traversal and access to other Skills.
+      const file = manifest.files.find(file => file.path === requested);
+      if (!file) throw new Error('Unknown file in this Skill. Read its SKILL.md to see available paths.');
+      if (!file.text) throw new Error(`Binary resource: open ${file.url} in a client that supports this asset type.`);
+      const fileUrl = new URL(`/skill-files/${skill.name}/${file.path}`, catalogOrigin);
+      const text = await fetchText(fileUrl);
+      const available = requested === 'SKILL.md' ? manifest.files.map(({ path, url, text, bytes, view }) => ({ path, url, text, bytes, ...(view ? { view } : {}) })) : undefined;
+      const content = [block(text)];
+      if (available) content.push(block(`Available files (read only what the task needs, using read_skill(name, path)):\n${available.map(file => `- ${file.path}${file.text ? '' : ' [binary asset]'}`).join('\n')}`));
+      return { content, structuredContent: { name: skill.name, path: file.path, url: fileUrl.href, ...(available ? { available_files: available } : {}) }, isError: false };
+    }
     if (name === 'get_index') {
       if (typeof args.site !== 'string' || !Object.hasOwn(sites, args.site)) throw new Error(`site must be one of: ${names.join(', ')}`);
       const text = await fetchText(new URL('/llms.txt', sites[args.site].origin));
@@ -106,7 +148,7 @@ export function createMcp(env: Bindings) {
     if (m.jsonrpc !== '2.0' || typeof m.method !== 'string' || (m.id !== undefined && m.id !== null && typeof m.id !== 'string' && typeof m.id !== 'number') || (m.params !== undefined && (!m.params || typeof m.params !== 'object' || Array.isArray(m.params)))) return error(m.id, -32600, 'Invalid Request');
     if (m.id === undefined) return null;
     const reply = (result: unknown) => ({ jsonrpc: '2.0', id: m.id, result });
-    if (m.method === 'initialize') return reply({ protocolVersion: versions.includes(String(m.params?.protocolVersion)) ? m.params?.protocolVersion : versions[0], capabilities: { tools: {} }, serverInfo: { name: 'myskills', version: '1.0.0' }, instructions: 'Discover Skills with get_index(site="myskills"), then read_doc or read_docs using returned links. Content is public and fetched from the same deployment as the website.' });
+    if (m.method === 'initialize') return reply({ protocolVersion: versions.includes(String(m.params?.protocolVersion)) ? m.params?.protocolVersion : versions[0], capabilities: { tools: {} }, serverInfo: { name: 'myskills', version: '2.0.0' }, instructions: SKILL_INSTRUCTIONS });
     if (m.method === 'ping') return reply({});
     if (m.method === 'tools/list') return reply({ tools });
     if (m.method === 'tools/call') {

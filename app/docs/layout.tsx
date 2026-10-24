@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <DocsLayout tree={source.getPageTree()} nav={{ title: site.name, url: '/' }} githubUrl={site.repository}
-      links={[{ text: 'Skills', url: '/docs/skills' }, { text: '使用指南', url: '/docs/guides' }]}
+      links={[{ text: 'Skills', url: '/docs/skills' }, { text: 'AI 按需读取', url: '/docs/ai' }]}
       sidebar={{ defaultOpenLevel: 1 }}>
       {children}
     </DocsLayout>

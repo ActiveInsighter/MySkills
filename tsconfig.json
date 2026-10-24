@@ -44,6 +44,8 @@
     "node_modules",
     "worker",
     "worker-configuration.d.ts",
-    "cloudflare.config.ts"
+    "cloudflare.config.ts",
+    "skills",
+    "public/skill-files"
   ]
 }

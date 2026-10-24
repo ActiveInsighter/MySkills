@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "fumadocs-mdx",
+    "postinstall": "node scripts/sync-skills.mjs && fumadocs-mdx",
     "dev": "npm run content:export && next dev",
     "build": "npm run content:export && next build && node scripts/normalize-output.mjs",
     "typecheck": "next typegen && tsc --noEmit && tsc -p tsconfig.worker.json",
@@ -12,7 +12,7 @@
     "deploy": "npm run build && wrangler deploy",
     "cf:types": "wrangler types",
     "e2e": "node scripts/e2e.mjs",
-    "content:export": "node scripts/export-content.mjs",
+    "content:export": "node scripts/sync-skills.mjs && node scripts/export-content.mjs",
     "verify:browser": "node scripts/browser-check.mjs"
   },
   "dependencies": {

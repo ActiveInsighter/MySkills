@@ -1,22 +1,16 @@
 ---
-title: 欢迎来到 MySkills
-description: 把做过的事整理成可以再次使用的方法。
+title: MySkills
+description: 两个 Fumadocs 项目的共用 Skill，供自己查阅与 AI 按需读取。
 ---
 
-MySkills 是我的个人 Skill 知识库。我把实践中有效的方法写成步骤、约束和检查清单，方便下一次查阅，也让 AI 能按同样的方法协作。
+这里保存两个 Fumadocs 项目相关的 10 个本机共用 Skill，覆盖前端设计、组件组合、性能优化、浏览器验证，以及 Supabase 与 Postgres。
 
-## 从哪里开始
+## 浏览 Skill
 
-- [浏览 Skills](/docs/skills)：查看可以直接使用的实践方法。
-- [编写与发布](/docs/guides/authoring)：把自己的经验整理成一篇 Skill。
-- [连接 AI](/docs/guides/mcp)：通过 MCP 让 AI 查目录、读文章。
+前往 [Skills 目录](/docs/skills)，按适用场景选择需要的内容。每个 Skill 保留原始 `SKILL.md`，其规则和参考文档也有对应阅读页。
 
-## 阅读与导出
+## 让 AI 使用
 
-文章上方提供复制、下载 Markdown 和源码入口。所有内容以 UTF-8 保存，中文标题、正文、文件名和链接都可以直接使用。
+连接 MySkills MCP 后，AI 先获取名称和适用场景，再读取当前任务需要的 Skill。需要某条规则或参考文件时继续读取对应路径。
 
-如果希望 AI 阅读当前文章，可以把文章链接交给已连接的 MySkills MCP，让它先读取正文，再结合任务执行。
-
-## 持续积累
-
-先记录一个明确的问题，再写清适用场景、操作步骤和验收标准。随着实践更新同一篇文档，让经验逐渐变得可靠。
+完整接入方法见 [AI 按需读取](/docs/ai)。文章支持复制和下载 Markdown，中文内容使用 UTF-8。

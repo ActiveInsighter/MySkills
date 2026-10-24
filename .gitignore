@@ -19,3 +19,8 @@ test-results/
 .unicode-test-*/
 
 .bootstrap/
+
+# Reading pages and raw exports are generated from canonical skills/.
+content/docs/skills/*/
+public/skill-files/
+public/documents.json
