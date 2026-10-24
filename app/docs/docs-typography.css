@@ -1,0 +1,99 @@
+/*
+ * Single source of truth for the documentation body type scale.
+ *
+ * This file is imported by app/docs/layout.tsx, so it loads after the root
+ * layout's global.css / surface-overrides.css / claude-benchmarks.css. That
+ * makes it the last declaration in the cascade — keep every `#docs-body`
+ * sizing decision here and nowhere else, otherwise the outcome depends on
+ * bundler CSS order rather than on intent.
+ */
+#docs-body {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+/* Tables are intentionally one pixel smaller than the 17px docs body. */
+#docs-body table {
+  font-size: 1rem;
+}
+
+.docs-page-title {
+  font-size: clamp(1.8rem, 1.7rem + 0.45vw, 2rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em;
+}
+
+#docs-body :where(h1, h2, h3, h4, h5, h6) {
+  font-weight: 500 !important;
+  letter-spacing: -0.012em;
+}
+
+#docs-body h1 {
+  font-size: 1.5rem;
+  line-height: 1.28;
+}
+
+#docs-body h2 {
+  font-size: 1.375rem;
+  line-height: 1.35;
+}
+
+#docs-body h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+#docs-body h4 {
+  font-size: 1.125rem;
+  line-height: 1.45;
+}
+
+#docs-body h5 {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+#docs-body h6 {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Markdown diagrams are rendered as real SVG DOM so their inner nodes remain
+ * available to page-level CSS while preserving the old responsive image size. */
+#docs-body .inline-svg {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#docs-body .inline-svg > svg {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  font-family: var(--svg-font-family);
+}
+
+/*
+ * Inline SVG diagrams in 408/knowledge2 are real DOM, so typography can be
+ * controlled here instead of carrying generator-specific text colors. Text
+ * on a known light or dark diagram surface is pinned to a monochrome token;
+ * all other text follows the documentation theme.
+ */
+#docs-body .inline-svg > svg .svg-text,
+#docs-body .inline-svg > svg .svg-text * {
+  color: var(--svg-text) !important;
+}
+
+#docs-body .inline-svg > svg :is(text.svg-text, text.svg-text tspan) {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+#docs-body .inline-svg > svg .svg-text-on-light {
+  --svg-text: var(--svg-text-on-light);
+}
+
+#docs-body .inline-svg > svg .svg-text-on-dark {
+  --svg-text: var(--svg-text-on-dark);
+}

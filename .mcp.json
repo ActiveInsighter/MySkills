@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "myskills": {
+      "type": "http",
+      "url": "https://myskills.any1.tech/mcp"
+    }
+  }
+}
