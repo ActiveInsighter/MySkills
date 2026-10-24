@@ -35,7 +35,7 @@ try {
   assert.equal(download.suggestedFilename(), 'shadcn.md');
   await download.saveAs('test-results/' + download.suggestedFilename());
   await page.getByRole('link', { name: /base-vs-radix\.md/ }).first().click();
-  await page.getByRole('heading', { level: 1, name: 'Base vs Radix' }).waitFor();
+  await page.getByRole('heading', { level: 1, name: 'Base vs Radix', exact: true }).waitFor();
   await page.screenshot({ path: 'test-results/skill-desktop.png', fullPage: true });
   console.log('PASS copy Markdown and browser download with UTF-8 content');
   await page.goto(origin);

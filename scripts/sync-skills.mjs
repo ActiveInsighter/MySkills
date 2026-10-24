@@ -63,7 +63,8 @@ for (const item of skillCatalog) {
     const parsed = matter(bytes.toString('utf8'));
     const title = file === 'SKILL.md' ? item.title : String(parsed.data.title ?? parsed.content.match(/^#\s+(.+)$/m)?.[1] ?? file.replace(/\.md$/, ''));
     const description = file === 'SKILL.md' ? item.description : `${item.title} · ${file}`;
-    const body = rewriteLinks(parsed.content, item.id, file, markdownFiles);
+    // DocsTitle already renders the article heading; keep the original heading in raw files.
+    const body = rewriteLinks(parsed.content.replace(/^\s*# [^\n]*(?:\r?\n|$)/, ''), item.id, file, markdownFiles);
     const note = `> 原始文件：[${file}](/skill-files/${item.id}/${file})。AI 可调用 \`read_skill\`，参数 \`name: "${item.id}"\`、\`path: "${file}"\` 读取原文。\n\n`;
     const fm = `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(description)}\n---\n\n`;
     const destination = path.join(docsDir, file === 'SKILL.md' ? 'index.md' : file);

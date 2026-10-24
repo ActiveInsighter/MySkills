@@ -97,3 +97,14 @@
 #docs-body .inline-svg > svg .svg-text-on-dark {
   --svg-text: var(--svg-text-on-dark);
 }
+
+/* Long API names and adjacent inline-code tokens must wrap on narrow screens.
+   Fenced code keeps its own horizontal scroller and source formatting. */
+#docs-body {
+  overflow-wrap: anywhere;
+}
+
+#docs-body pre {
+  overflow-wrap: normal;
+  word-break: normal;
+}

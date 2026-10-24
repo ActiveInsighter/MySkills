@@ -9,7 +9,7 @@ description: 连接 MCP，先发现 Skill，再读取与当前任务相关的正
 https://myskills.any1.tech/mcp
 ```
 
-使用 Streamable HTTP，无需认证。仓库中的 `.mcp.json` 与 `.codex/config.toml` 已注册这个地址。
+使用 Streamable HTTP，无需认证。仓库中的 `.mcp.json` 与 `.codex/config.toml` 已注册这个地址。如果之前已经连接过，重新连接后即可刷新新增的 Skill 工具和使用指引。
 
 Claude Code 可在自己的项目目录执行：
 
