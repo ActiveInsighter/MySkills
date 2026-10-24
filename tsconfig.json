@@ -46,6 +46,7 @@
     "worker-configuration.d.ts",
     "cloudflare.config.ts",
     "skills",
-    "public/skill-files"
+    "public/skill-files",
+    "out"
   ]
 }
