@@ -43,6 +43,7 @@ export function createMcp(env: Bindings) {
     return url;
   }
 
+  let fetchedBytes = 0;
   async function fetchText(url: URL) {
     // The Assets binding reads the exact same deployment as the website;
     // external redirects and arbitrary fetch destinations are never followed.
@@ -57,6 +58,8 @@ export function createMcp(env: Bindings) {
         const part = await reader.read();
         if (part.done) break;
         bytes += part.value.byteLength;
+        fetchedBytes += part.value.byteLength;
+        if (fetchedBytes > 8_000_000) throw new Error('Request exceeds 8 MB aggregate read limit');
         if (bytes > MAX_BYTES) throw new Error('Document exceeds 2 MB limit');
         text += decoder.decode(part.value, { stream: true });
       }

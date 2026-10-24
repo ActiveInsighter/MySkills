@@ -42,7 +42,7 @@ npm run dev
 | `read_doc` | `url`, `site?` | 按网页或 `.md` 链接读取原文 |
 | `read_docs` | `urls`（最多 20）, `site?`, `max_chars?` | 批量读全文，附结构化状态与重试链接 |
 
-路径模式需要 `site`，完整 URL 可省略。批量默认 50000 字符，最大 100000；首篇完整返回，后续放不下的整篇跳过。单文档上限 2 MB。
+路径模式需要 `site`，完整 URL 可省略。批量默认 50000 字符，最大 100000；首篇完整返回，后续放不下的整篇跳过。单文档上限 2 MB，每次请求累计读取最多 8 MB。
 
 MCP 协议与工具行为参考 `../docs-md-mcp`，本站用 `ASSETS.fetch()` 读取当前部署，无外部代理、无内容缓存延迟；只允许配置的 HTTPS origin 和文档路径。输入限制 64 KiB，每 IP 每分钟最多 120 次 MCP 请求。
 
@@ -60,6 +60,7 @@ npm run build
 npx wrangler deploy --dry-run
 npx wrangler deploy
 npm run e2e
+npm run verify:browser
 ```
 
 Worker 名称 `myskills`，Assets 绑定 `ASSETS`，静态目录 `out`。自定义域名在 `wrangler.jsonc` 管理。网页直接由 Assets 提供，仅 `/mcp` 与 `/api/download` 先经过 Worker。

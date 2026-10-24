@@ -7,7 +7,13 @@ import type { Metadata } from 'next';
 
 type Props = { params: Promise<{ slug?: string[] }> };
 export const dynamicParams = false;
-export function generateStaticParams() { return source.generateParams(); }
+export function generateStaticParams() {
+  // Fumadocs supplies URI-encoded slugs. Next.js expects decoded params and
+  // encodes them itself; passing encoded Chinese breaks client navigation.
+  return source.generateParams().map(params => ({
+    slug: params.slug?.map(segment => decodeURIComponent(segment)),
+  }));
+}
 export default async function Page({ params }: Props) {
   const page = source.getPage((await params).slug);
   if (!page) notFound();

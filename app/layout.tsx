@@ -7,6 +7,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.origin),
+  icons: { icon: '/favicon.svg' },
   title: { default: site.name, template: `%s | ${site.name}` },
   description: site.description,
   openGraph: { title: site.name, description: site.description, locale: 'zh_CN', type: 'website' },

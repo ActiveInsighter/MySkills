@@ -12,7 +12,8 @@
     "deploy": "npm run build && wrangler deploy",
     "cf:types": "wrangler types",
     "e2e": "node scripts/e2e.mjs",
-    "content:export": "node scripts/export-content.mjs"
+    "content:export": "node scripts/export-content.mjs",
+    "verify:browser": "node scripts/browser-check.mjs"
   },
   "dependencies": {
     "fumadocs-core": "16.17.5",
