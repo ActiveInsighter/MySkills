@@ -1,4 +1,5 @@
 import { source } from '@/lib/source';
+import { mdxHeadings, headingLabel } from '@/components/mdx-headings';
 import { markdownPath, site } from '@/lib/site';
 import { notFound } from 'next/navigation';
 import defaultComponents, { createRelativeLink } from 'fumadocs-ui/mdx';
@@ -20,7 +21,7 @@ export default async function Page({ params }: Props) {
   const MDX = page.data.body;
   const md = markdownPath(page.url);
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage toc={page.data.toc.map(item => ({ ...item, title: headingLabel(item.title) }))} full={page.data.full}>
       <DocsTitle className="docs-page-title font-medium">{page.data.title}</DocsTitle>
       <DocsDescription className="mb-1 font-normal">{page.data.description}</DocsDescription>
       <div id="docs-page-actions" className="flex flex-wrap items-center gap-2 pb-4 pt-2">
@@ -28,7 +29,7 @@ export default async function Page({ params }: Props) {
         <a className="docs-page-action inline-flex items-center rounded-lg px-3 py-2 text-sm" href={`/api/download?path=${encodeURIComponent(md)}`}>下载 Markdown</a>
         <ViewOptionsPopover markdownUrl={md} githubUrl={`${site.repository}/blob/main/content/docs/${page.path.split('/').map(encodeURIComponent).join('/')}`} className="docs-page-action" />
       </div>
-      <DocsBody id="docs-body" className="pb-10 pt-4"><MDX components={{ ...defaultComponents, a: createRelativeLink(source, page) }} /></DocsBody>
+      <DocsBody id="docs-body" className="pb-10 pt-4"><MDX components={{ ...defaultComponents, ...mdxHeadings, a: createRelativeLink(source, page) }} /></DocsBody>
     </DocsPage>
   );
 }

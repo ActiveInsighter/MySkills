@@ -17,6 +17,9 @@ try {
   await page.getByRole('link', { name: 'shadcn 组件开发', exact: true }).first().click();
   await page.getByRole('heading', { name: 'shadcn 组件开发', exact: true }).waitFor();
   assert.match(await page.title(), /shadcn 组件开发/);
+  await page.reload();
+  await page.getByRole('heading', { name: 'shadcn 组件开发', exact: true }).waitFor();
+  assert.equal(await page.locator('a a').count(), 0, 'Linked headings and TOC labels must not nest anchors');
   await page.getByRole('button', { name: /搜索/ }).first().click();
   const input = page.getByRole('combobox', { name: '搜索 Skill' });
   await input.fill('组件');
