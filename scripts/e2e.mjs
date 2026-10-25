@@ -13,7 +13,7 @@ try {
   const { tools } = await client.listTools();
   assert.deepEqual(tools.map(t => t.name).sort(), ['get_index', 'list_skills', 'read_doc', 'read_docs', 'read_skill']);
   const list = await client.callTool({ name: 'list_skills', arguments: {} });
-  assert.equal(list.structuredContent.count, 10);
+  assert.equal(list.structuredContent.count, localCatalog.length);
   assert.deepEqual(list.structuredContent.skills.map(s => s.name).sort(), localCatalog.map(s => s.id).sort());
   for (const skill of list.structuredContent.skills) {
     const r = await client.callTool({ name: 'read_skill', arguments: { name: skill.name } });
