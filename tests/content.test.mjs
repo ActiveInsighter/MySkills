@@ -19,11 +19,11 @@ test('Markdown routing preserves UTF-8 and does not publish starter examples', a
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
 
-test('all 10 Skills preserve every original resource and expose reference pages', async () => {
+test('all Skills preserve every original resource and expose reference pages', async () => {
   const catalog = JSON.parse(await readFile('skills/catalog.json', 'utf8'));
   const summaries = JSON.parse(await readFile('public/skills.json', 'utf8'));
-  assert.equal(catalog.length, 10);
-  assert.equal(summaries.length, 10);
+  assert.equal(catalog.length, 11);
+  assert.equal(summaries.length, catalog.length);
   assert.ok(summaries.every(s => !Object.hasOwn(s, 'raw') && !Object.hasOwn(s, 'body')));
   for (const skill of catalog) {
     const manifest = JSON.parse(await readFile(`public/skill-files/${skill.id}/manifest.json`, 'utf8'));
@@ -34,6 +34,13 @@ test('all 10 Skills preserve every original resource and expose reference pages'
   }
   const pages = await collectContent();
   assert.ok(pages.some(p => p.url === '/docs/skills/shadcn/rules/base-vs-radix'));
+  const myfumadocs = pages.find(p => p.url === '/docs/skills/myfumadocs');
+  const custom = pages.find(p => p.url === '/docs/skills/myfumadocs/references/custom-components');
+  assert.ok(myfumadocs, 'MyFumadocs entry is published');
+  assert.ok(custom, 'MyFumadocs custom reference is published');
+  assert.match(myfumadocs.raw, /\/docs\/skills\/myfumadocs\/references\/custom-components/);
+  assert.match(myfumadocs.raw, /\$\.\.\.\$/);
+  assert.match(custom.raw, /<Question/);
   const shadcn = pages.find(p => p.url === '/docs/skills/shadcn');
   assert.match(shadcn.raw, /\]\(\/docs\/skills\/shadcn\/rules\/base-vs-radix\)/);
   const playwright = pages.find(p => p.url === '/docs/skills/playwright-cli');
