@@ -78,7 +78,7 @@ for (const item of skillCatalog) {
 }
 await writeFile('public/skills.json', JSON.stringify(summaries, null, 2) + '\n');
 await writeFile('content/docs/skills/meta.json', JSON.stringify({ title: 'Skills', pages: ['index', ...skillCatalog.map(s => s.id)] }) + '\n');
-const intro = `---\ntitle: Skills\ndescription: 两个 Fumadocs 项目相关的 10 个共用 Skill，按任务选择并读取。\n---\n\n以下 Skill 从本机共用 Skill 目录迁入，保留原始入口、规则、参考文件和配套资源。\n\n## 按任务选择\n\n`;
+const intro = `---\ntitle: Skills\ndescription: 两个 Fumadocs 项目相关的 ${skillCatalog.length} 个 Skill，按任务选择并读取。\n---\n\n以下 Skill 包含从本机迁入的共用规范与本项目维护的专属规范；均保留原始入口、参考文件和配套资源。\n\n## 按任务选择\n\n`;
 const rows = skillCatalog.map(s => `| [${s.title}](/docs/skills/${s.id}) | \`${s.id}\` | ${s.description} |`).join('\n');
 await writeFile('content/docs/skills/index.md', intro + '| Skill | 名称 | 适用场景 |\n| --- | --- | --- |\n' + rows + '\n\n## 让 AI 按需读取\n\n通过 [MCP 使用说明](/docs/ai) 连接后，先调用 `list_skills` 查询名称和适用场景，再调用 `read_skill` 读取相关入口。需要具体规则时，沿入口中的引用继续读取，无需一次加载全部内容。\n');
 console.log(`Synced ${summaries.length} Skills with original resources and reading pages.`);

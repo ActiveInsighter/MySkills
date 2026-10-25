@@ -3,9 +3,11 @@ title: MySkills
 description: 两个 Fumadocs 项目的共用 Skill，供自己查阅与 AI 按需读取。
 ---
 
-这里保存两个 Fumadocs 项目相关的 10 个本机共用 Skill，覆盖前端设计、组件组合、性能优化、浏览器验证，以及 Supabase 与 Postgres。
+这里保存两个 Fumadocs 项目相关的 11 个 Skill，覆盖 Fumadocs 文档与组件语法、前端设计、组件组合、性能优化、浏览器验证，以及 Supabase 与 Postgres。
 
 ## 浏览 Skill
+
+新增 [MyFumadocs 文档与组件写法](/docs/skills/myfumadocs)：通用 Markdown 与官方组件稳定篇，并附 [自定义组件动态篇](/docs/skills/myfumadocs/references/custom-components)，专门记录题目与解析、英语阅读、思维导图和单词卡。
 
 前往 [Skills 目录](/docs/skills)，按适用场景选择需要的内容。每个 Skill 保留原始 `SKILL.md`，其规则和参考文档也有对应阅读页。
 
