@@ -255,7 +255,7 @@ description: 考研 408 真题练习
 />
 ~~~
 
-上例中的 `String.raw` 后面实际应使用 **JavaScript 模板字符串反引号**（`\``）而非符号 ```；避免转义 Markdown 换行与公式命令。用在真实 MDX 时确保属性表达式是 `markdown={String.raw\`...\`}`。
+上例中的 `String.raw` 后面实际应使用 **JavaScript 模板字符串反引号**（```）而非其他引号字符；避免转义 Markdown 换行与公式命令。用在真实 MDX 时确保属性表达式是 `markdown={String.raw`...`}`。
 
 Props：
 - `markdown` **必填字符串**，标题 `#` / `##` / `###`、子列表 `-` 控制树形层级；非空且结构有效。
@@ -265,7 +265,7 @@ Props：
 - `maxWidth?`：节点文字最大宽度，默认 `280`；`className?` 可选。
 - 工具栏包含缩放、适配视图、全部展开/折叠、恢复默认、全屏；无需在内容中重复定义。
 
-**注意：**标注为 `\`\`\`mermaid` 的围栏绘制 Mermaid；`MindMap markdown={...}` 才是交互 Markmap。不要用 `\`\`\`markmap` 围栏代替当前已注册的组件，除非后续专门实现了该语法。
+**注意：**标注为 ````mermaid` 的围栏绘制 Mermaid；`MindMap markdown={...}` 才是交互 Markmap。不要用 ````markmap` 围栏代替当前已注册的组件，除非后续专门实现了该语法。
 
 源码：`components/mdx/mind-map.tsx`、`components/mdx/mind-map-hook.ts`。
 
