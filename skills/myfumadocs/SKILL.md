@@ -1,6 +1,6 @@
 ---
 name: myfumadocs
-description: 编写 Fumadocs Markdown/MDX 文档的规范与实用组件指南。包含标题、链接、Mermaid、严格的美元符号数学公式，以及 Accordion、Auto Type Table、Code Block、Steps、Tabs、Type Table；面向 exam-docs 和 fumadocs-study 的自定义组件另见独立参考文件。
+description: 编写 Fumadocs Markdown/MDX 文档的规范与实用组件指南。包含标题、链接、Mermaid、严格的美元符号数学公式，以及 Accordion、Auto Type Table、Code Block、Steps、Tabs、Type Table、Cards、Callout；面向 exam-docs 和 fumadocs-study 的自定义组件另见独立参考文件。
 ---
 
 # MyFumadocs · Markdown 与官方组件（稳定篇）
@@ -202,10 +202,114 @@ pnpm install
 
 常用条目属性：`type`、`description`、`default`、`required`、`deprecated`、`parameters`、`returns`。区别：**TypeTable 是手动数据，AutoTypeTable 是自动类型分析**。参考：https://www.fumadocs.dev/docs/ui/components/type-table
 
-### 其他官方组件（了解即可）
 
-- `<Callout type="warn" title="注意">正文</Callout>`：提示/警告；可用 `info`、`warn`、`error`、`success`、`idea`。
-- `<Cards><Card title="章节" href="/docs/chapter">简介</Card></Cards>`：章节入口与链接卡片。
+### 7. Cards / Card · 信息卡片、章节入口与图标网格
+
+`Cards` 是卡片布局容器，`Card` 是单个卡片。适合首页导航、章节入口、术语介绍、知识点概览和资源推荐。**它也能做纯展示卡片，并非每一张都必须能点击。** Fumadocs 默认 MDX 组件已包含 `Cards` / `Card`；在 `exam-docs` 和 `fumadocs-study` 使用时，仍以当前 MDX 组件映射为准。
+
+**最常用的写法**：用 `<Cards>` 包裹多个 `<Card>`，`title` 是标题，标签内部是说明文字，`href` 是目标链接；不提供 `href` 时就是普通信息卡片。容器采用响应式卡片网格，无须臆造 `columns` 等不存在的属性。
+
+~~~mdx
+<Cards>
+  <Card title="计算机组成原理" href="/docs/computer-organization">
+    存储系统、指令系统、CPU 与总线。
+  </Card>
+  <Card title="操作系统" href="/docs/operating-system">
+    进程、内存管理、文件系统与 I/O。
+  </Card>
+  <Card title="复习提示">
+    本卡片仅用于展示信息，没有链接，不可点击跳转。
+  </Card>
+  <Card title="Fumadocs 官方文档" href="https://www.fumadocs.dev/docs">
+    访问外部文档。
+  </Card>
+</Cards>
+~~~
+
+**像官方 Terminology 页面那样放置图标**：`icon` 接收 React 节点，可传入 `lucide-react` 图标。以下示例放在允许 MDX `import` 的页面中；若站点不允许页面级导入，应先在工程的 MDX 组件映射中注册图标，而不是直接写未定义组件。
+
+~~~mdx
+import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
+
+<Cards>
+  <Card title="Fumadocs Core" icon={<DatabaseIcon />}>
+    负责文档数据源、搜索与 Markdown 扩展。
+  </Card>
+  <Card title="Fumadocs UI" icon={<BookOpenIcon />}>
+    提供文档主题与 UI 组件。
+  </Card>
+  <Card title="Fumadocs CLI" icon={<TerminalIcon />} href="/docs/cli">
+    打开命令行工具相关文档。
+  </Card>
+</Cards>
+~~~
+
+常用属性：`title`（标题）、`href`（可选链接）、`icon`（可选图标）、`children`（正文说明）；具体版本还支持 `description` / `external` 等属性，优先使用上面稳定的基础写法。
+
+- **导航卡片**：设置 `href`，内部链接使用站点实际路径，外链使用完整的 `https://` URL。
+- **知识点/术语卡片**：不设置 `href`，可配图标和简短解释；截图中的 Terminology 卡片属于这一类。
+- **多卡片布局**：用同一个 `Cards` 容器装多个 `Card`；不要套用其他 UI 库中不存在于 Fumadocs 的 `CardHeader`、`CardContent` 等子组件。
+- 卡片正文可包含简短的 Markdown/MDX；复杂长篇推导优先使用正文、`Accordion` 或 `Tabs`，避免卡片高度差异过大。
+
+官方参考：https://www.fumadocs.dev/docs/markdown#cards
+
+### 8. Callout · 提示、注意、警告、错误与学习建议
+
+`Callout` 是 Fumadocs **默认内置的提示框组件**，适合强调一段内容，而不是将普通引用块（`>`）当作有语义的警告。使用 `title` 指定标题、`type` 选择语义和对应主题样式；省略 `type` 默认是 `info`。
+
+| `type` | 含义 | 典型用途 |
+| --- | --- | --- |
+| `info`（默认） | 信息、补充说明 | 定义、前置条件、教材补充 |
+| `warn` / `warning` | 注意、警告 | 易错点、风险和限制条件 |
+| `error` | 错误、禁止事项 | 常见错误结论、不可用配置 |
+| `success` | 正确、完成 | 验证成功、正确做法 |
+| `idea` | 灵感、技巧 | 解题技巧、拓展思路 |
+
+以下均可直接放入已启用默认 Fumadocs MDX 组件的文档：
+
+~~~mdx
+<Callout>
+  这是一条没有显式标题的默认信息提示。
+</Callout>
+
+<Callout type="info" title="知识点提示">
+  先理解定义，再记忆常用结论。
+</Callout>
+
+<Callout type="warn" title="易错点">
+  注意区分 **缺页中断** 与 **TLB 未命中**，两者不等价。
+</Callout>
+
+<Callout type="error" title="错误结论">
+  不要认为所有 TLB 未命中都会访问磁盘。
+</Callout>
+
+<Callout type="success" title="正确做法">
+  先判断页表项是否有效，再确认目标页是否驻留内存。
+</Callout>
+
+<Callout type="idea" title="解题技巧">
+  绘制地址转换流程图，按顺序列出每次访问。
+</Callout>
+~~~
+
+`Callout` 正文支持多段文字、加粗、行内代码、列表和公式（公式遵循本 Skill 的美元符号标准）。**需要 Markdown 列表或多段内容时，在 JSX 标签与 Markdown 块之间留空行**：
+
+~~~mdx
+<Callout type="warn" title="复习前检查">
+
+  - 明确页号、页内偏移量的划分。
+  - 区分页表访问与实际数据访问。
+  - 判断题目是否明确给出 TLB 命中情况。
+
+</Callout>
+~~~
+
+**用法建议**：定义性补充用 `info`，重点陷阱用 `warn`，错误配置或错误推论用 `error`，确认正确的操作用 `success`，解题捷径用 `idea`。不要仅为装饰而整页堆叠警告框；具体颜色、边框和图标随站点主题与 Fumadocs 版本而变化，不要假设固定颜色。
+
+官方参考：https://www.fumadocs.dev/docs/markdown#callouts
+
+### 其他官方组件（了解即可）
 - `Files` 族组件可展示文件树，需在当前工程映射中启用；本项目已引入。
 - 图片、SVG：优先 Markdown 图片引用，保持可访问的 `alt`，避免无谓转换为截图。
 
@@ -215,7 +319,8 @@ pnpm install
 2. MDX 标签有无闭合，JSX 属性是字符串还是表达式，组件是否已经注册？
 3. 有没有把 `AutoTypeTable` 错当成已经启用，或者把代码块 `tab` 与内容 `Tabs` 混淆？
 4. 是否保留原图片、SVG、链接的相对路径，Mermaid 语法与插件是否匹配？
-5. 写入 `exam-docs` / `fumadocs-study` 的私有组件内容之前，是否额外读取了 [自定义组件动态篇](references/custom-components.md)？
+5. `Card` 的 `href` 可选，`Callout` 使用有效的 `type`，图标组件已经导入或注册？
+6. 写入 `exam-docs` / `fumadocs-study` 的私有组件内容之前，是否额外读取了 [自定义组件动态篇](references/custom-components.md)？
 
 ## 来源与维护边界
 

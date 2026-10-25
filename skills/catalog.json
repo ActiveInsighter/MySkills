@@ -2,7 +2,7 @@
   {
     "id": "myfumadocs",
     "title": "MyFumadocs 文档与组件写法",
-    "description": "Fumadocs Markdown / MDX、美元符号数学公式、六类官方组件，以及 exam-docs 题目与解析、英语阅读、fumadocs-study 思维导图与单词卡片。",
+    "description": "Fumadocs Markdown / MDX、美元符号数学公式、八类重点官方组件（含 Cards/Card、Callout），以及 exam-docs 题目与解析、英语阅读、fumadocs-study 思维导图与单词卡片。",
     "tags": [
       "Fumadocs",
       "MDX",
@@ -27,7 +27,12 @@
       "WordCards",
       "思维导图",
       "Markmap",
-      "MindMap"
+      "MindMap",
+      "Cards",
+      "Card",
+      "Callout",
+      "提示框",
+      "警告"
     ],
     "source": "MySkills 自维护：通用官方组件（稳定篇）+ 两站自定义组件（动态篇）"
   },
