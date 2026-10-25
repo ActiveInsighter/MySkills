@@ -42,18 +42,18 @@ $$
 | 引用、分隔线 | `> 引用文字`；`---` |
 | 列表、任务 | `- 项`、`1. 项`、`- [ ] 未完成` |
 | 表格 | GFM 管道表格 `| 列一 | 列二 |` 与分隔行 `| --- | --- |` |
-| 行内代码、代码块 | `\`code\``；三反引号围栏并在开头指定 `ts`、`js`、`bash` 等语言 |
-| Mermaid | `\`\`\`mermaid` 围栏内写 `flowchart TD`、`sequenceDiagram` 等（目标工程须启用 Mermaid 插件） |
+| 行内代码、代码块 | ``code``；三反引号围栏并在开头指定 `ts`、`js`、`bash` 等语言 |
+| Mermaid | ````mermaid` 围栏内写 `flowchart TD`、`sequenceDiagram` 等（目标工程须启用 Mermaid 插件） |
 | HTML / JSX | `<kbd>Ctrl</kbd>`、`<Component prop="value" />`；复杂交互用 MDX 而不是普通 `.md` |
 | 注释 | 在 MDX 用 `{/* 注释 */}`；避免在 JSX 中写非法 HTML 标签 |
 
 ~~~mdx
-\`\`\`mermaid
+```mermaid
 flowchart LR
   A[开始] --> B{通过?}
   B -->|是| C[完成]
   B -->|否| D[修正]
-\`\`\`
+```
 ~~~
 
 > Mermaid 是流程图，**不是** Markmap 思维导图。后者属于 `fumadocs-study` 自定义 `MindMap`，见动态篇。Mermaid 本身需要工程集成：官方文档并未提供不经配置就能使用的通用内置渲染器。
@@ -107,17 +107,17 @@ npm install fumadocs-typescript
 常规首选 **Markdown 代码围栏**，Fumadocs 通过 Rehype/Shiki 处理，不必逐段手写 JSX。可加 `title`、`lineNumbers`、`[!code highlight]`、`[!code ++]` / `[!code --]`；连续相邻且带 `tab="..."` 的围栏可自动合为语言切换组。
 
 ~~~mdx
-\`\`\`ts title="src/example.ts" lineNumbers
+```ts title="src/example.ts" lineNumbers
 const answer = 42; // [!code highlight]
 console.log(answer);
-\`\`\`
+```
 
-\`\`\`bash tab="npm"
+```bash tab="npm"
 npm install
-\`\`\`
-\`\`\`bash tab="pnpm"
+```
+```bash tab="pnpm"
 pnpm install
-\`\`\`
+```
 ~~~
 
 底层组件是 `CodeBlock` / `Pre`；它们一般在 `components/mdx.tsx` 中通过 `pre` 映射包装，不应凭空写一个未导入、未注册的 `<CodeBlock>`。以上代码 Tabs 与下面的内容 `Tabs` 不是一回事。参考：https://www.fumadocs.dev/docs/ui/components/codeblock 和 https://www.fumadocs.dev/docs/markdown
@@ -155,15 +155,15 @@ pnpm install
 <Tabs items={['Python', 'JavaScript']} defaultIndex={0}>
   <Tab value="Python">
 
-    \`\`\`python
+    ```python
     print("hello")
-    \`\`\`
+    ```
   </Tab>
   <Tab value="JavaScript">
 
-    \`\`\`js
+    ```js
     console.log("hello");
-    \`\`\`
+    ```
   </Tab>
 </Tabs>
 ~~~
