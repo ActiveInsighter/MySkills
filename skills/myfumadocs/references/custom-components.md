@@ -25,7 +25,16 @@
   points={2}
   tags="来源:2025考研408, 科目:数据结构, 章节:绪论, 考点:算法, 难度:基础"
 >
-  ...
+
+下列不属于算法基本特征的是（ ）。
+
+<Option>有穷性</Option>
+<Option>确定性</Option>
+<Option correct>可读性</Option>
+<Option>可行性</Option>
+
+<Solution>可读性不是算法必备的基本特征。</Solution>
+
 </Question>
 ~~~
 
@@ -68,7 +77,15 @@
   points={2}
   tags="来源:王道8套卷, 试卷:第一套, 科目:计算机网络, 考点:VLAN, 难度:较难, 易错"
 >
-  ...
+
+下列关于 VLAN 的说法，正确的有（ ）。
+
+<Option correct>VLAN 可以划分广播域</Option>
+<Option>不同 VLAN 默认属于同一广播域</Option>
+<Option correct>不同 VLAN 间通信通常需要三层转发</Option>
+
+<Solution>VLAN 按逻辑划分二层广播域，不同 VLAN 之间通常通过三层设备转发。</Solution>
+
 </Question>
 ~~~
 
@@ -401,7 +418,7 @@ Props：
 | `WordExample` | `text: string`、`translation: string`（均必填） | 英文原句与中文翻译 |
 
 - 比例通常按同一单词下的 `count / sum(count)` 计算；`percentage` 可以覆盖，需为合理数值。
-- `WordCardModeToggle` 提供完整、紧凑和记忆相关视图切换；当前模式还包含 `dictation`（隐藏单词/音标）与 `translation`（隐藏释义）。普通页面在 `WordCards` 前放一次即可，无需给每张词卡单独写模式状态。
+- `WordCardModeToggle` 的当前四种实际模式为 **`compact` 精简、`dictation` 默写（隐藏单词/音标）、`translation` 翻译（隐藏释义）、`full` 完整**；状态由 `WordCardsProvider` 管理并保存在 localStorage。只需在页面放一次切换器，无需逐卡手写模式状态。
 - 数据量大时优先把数组维护在 `data/vocabulary/*.mjs` / `*.json`，通过 `import` 传给 `<WordCards words={...} />`，可用 `slice(start,end)` 按单元拆分；不要在数百张 MDX 卡片里重复复制对象。
 - `WordCards` 的 `words` 必填，`empty` 可选（词数组为空时显示替代内容）。缺少 `meanings` 或数据结构错误会导致组件无法正常显示；优先匹配现有演示数据 schema。
 
