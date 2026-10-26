@@ -31,13 +31,13 @@ try {
   const filtered = await client.callTool({ name: 'list_skills', arguments: { query: '组件' } });
   assert.ok(filtered.structuredContent.skills.some(s => s.name === 'shadcn'));
   for (const args of [{ name: 'unknown' }, { name: 'shadcn', path: '../supabase/SKILL.md' }, { name: 'shadcn', path: 'assets/shadcn.png' }]) assert.equal((await client.callTool({ name: 'read_skill', arguments: args })).isError, true);
-  console.log('PASS discovery -> selected entry -> referenced rule; all 10 original Skills match local files byte for byte');
+  console.log('PASS discovery -> selected entry -> referenced rule; all cataloged Skills match local files byte for byte');
 
   const index = text(await client.callTool({ name: 'get_index', arguments: { site: 'myskills' } }));
   assert.match(index, /list_skills.*read_skill/);
   assert.ok(!index.includes('任务拆解与验收') && !index.includes('文档整理与复用'));
   const links = [...index.matchAll(/\]\((https:\/\/[^)]+\.md)\)/g)].map(m => m[1]);
-  assert.equal(links.length, 13, 'Lightweight index: 10 Skills and 3 site pages, no expanded references');
+  assert.equal(links.length, localCatalog.length + 3, 'Lightweight index: catalog Skills and 3 site pages, no expanded references');
   for (const link of links) {
     const upstream = await fetch(link);
     assert.equal(upstream.status, 200, link);
