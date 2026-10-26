@@ -5,7 +5,7 @@
 ## 统一规则
 
 - **所有数学公式**严格使用 `$...$`（行内）和 `$$...$$`（独立）。不采用 `\( ... \)` / `\[ ... \]`；即使从 PDF/OCR 或别处迁移也统一改成美元符号。
-- 这些组件由各自项目 `components/mdx.tsx` 注册；**`exam-docs` 的 `Question`/`EnglishReading` 不能默认用于 `fumadocs-study`，`fumadocs-study` 的 `MindMap`/`WordCards` 也不能默认用于 `exam-docs`**。
+- 这些组件由各自项目 `components/mdx.tsx` 注册；**`exam-docs` 的 `Question` 不能默认用于 `fumadocs-study`，`fumadocs-study` 的 `MindMap`/`WordCards` 也不能默认用于 `exam-docs`**。
 - 用 `.mdx` 承载 JSX 和 JS 表达式；涉及嵌套组件时，每个开闭标签完整配对，标签之间保留空行以避免 Markdown 被当纯文本。
 - 所有例子使用示意 `id`，实际同一站点内不得重复。迁移内容时保留原图 / SVG 的路径，检查资源存在与大小写。
 - 自定义组件变更应先核对 `components/mdx.tsx` → 组件 Props / 解析器 → `docs/*.md` → `content/docs/*.mdx` 实例 → 测试，随后只更新**本动态篇**，不轻易改稳定篇。
@@ -40,25 +40,7 @@
 
 | 属性 | 格式与限制 | 实际用途 / 页面渲染 |
 | --- | --- | --- |
-| `id` | **必填**，稳定且全库唯一的字符串；匹配正则 `^[A-Za-z0-9][A-Za-z0-9._-]*# MyFumadocs · 自定义组件（动态篇）
-
-> **版本敏感 / 经常变化。** 本文基于 `ActiveInsighter/exam-docs` 和 `ActiveInsighter/fumadocs-study` 的真实组件映射、Props 类型、作者说明及实际 MDX 示例整理。更新站点时重新核对源码，**不要**把这里当成永远不变的官方 Fumadocs API。通用 Markdown、数学公式和官方组件请先读 [稳定篇](../SKILL.md)。
-
-## 统一规则
-
-- **所有数学公式**严格使用 `$...$`（行内）和 `$$...$$`（独立）。不采用 `\( ... \)` / `\[ ... \]`；即使从 PDF/OCR 或别处迁移也统一改成美元符号。
-- 这些组件由各自项目 `components/mdx.tsx` 注册；**`exam-docs` 的 `Question`/`EnglishReading` 不能默认用于 `fumadocs-study`，`fumadocs-study` 的 `MindMap`/`WordCards` 也不能默认用于 `exam-docs`**。
-- 用 `.mdx` 承载 JSX 和 JS 表达式；涉及嵌套组件时，每个开闭标签完整配对，标签之间保留空行以避免 Markdown 被当纯文本。
-- 所有例子使用示意 `id`，实际同一站点内不得重复。迁移内容时保留原图 / SVG 的路径，检查资源存在与大小写。
-- 自定义组件变更应先核对 `components/mdx.tsx` → 组件 Props / 解析器 → `docs/*.md` → `content/docs/*.mdx` 实例 → 测试，随后只更新**本动态篇**，不轻易改稳定篇。
-
-## 一、exam-docs：题目与解答组件（最重要）
-
-入口：`components/mdx.tsx`；详细规范：`docs/question-components.md`；示例：`content/docs/question-types.mdx`；编译验证：`lib/remark-question.ts`。
-
-**当前支持四个作者组件：`Question`、`Option`、`Blank`、`Solution`。** 目前**没有**可直接使用的独立 `<Answer>` 或 `<Explanation>` 标签；不要把旧版本的 `ExamAnswer / ExamExplanation / ExamQuestion` 写法迁入。
-
-，首位须是英文字母或数字 | **不直接当题号显示**；用于题目锚点、作答记录、收藏、个人标签和注释关联。不要按排序临时改变 id。 |
+| `id` | **必填**，稳定且全库唯一的字符串；匹配正则 `^[A-Za-z0-9][A-Za-z0-9._-]*$`，首位须是英文字母或数字 | **不直接当题号显示**；用于题目锚点、作答记录、收藏、个人标签和注释关联。不要按排序临时改变 id。 |
 | `type` | **必填**；只能填 `single`、`multiple`、`boolean`、`blank`、`essay` | 依次显示「单选题 / 多选题 / 判断题 / 填空题 / 解答题」，同时决定选项、判分、输入框或自评交互。 |
 | `points` | 可选；`points={2}` 或 `points={12.5}`，必须是**正数 JSX 表达式**，不能写 `points="2"` | 在**题型胶囊里**显示「2 分」；只负责标注分值，不代替结构化答案。 |
 | `tags` | 可选；逗号分隔字符串或字符串数组，见下一节 | 按标签分类显示在题目顶部不同位置，或解答卡片考点区。 |
@@ -281,50 +263,7 @@ description: 考研 408 真题练习
 - `Solution` 最多一个、须为直接子元素且放在最后；编译器**不强制每个题型必须有 Solution**。但 essay 题务必提供完整参考解答，否则无法有效自评。
 
 
-## 二、exam-docs：英语阅读理解组件
-
-来源：`docs/english-reading-component.md`、`content/docs/english/index.mdx`、`components/english-reading/index.tsx`。
-
-**组件树：**`EnglishReading` 包裹 **恰好一个直接子元素** `ExamArticle` 和若干 `Question`；文章里可按段使用 `Paragraph`、`Translation`、`Evidence`。
-
-~~~mdx
-<EnglishReading>
-  <ExamArticle title="A familiar park" titleTranslation="熟悉的公园" source="原创模拟文章">
-    <Paragraph>
-      <p>A city park can feel new when we pay attention. <Evidence for="reading-demo-001">Careful observation makes familiar places interesting.</Evidence></p>
-      <Translation>留意身边的细节时，城市公园也会焕然一新。仔细观察能让熟悉的地方变得有趣。</Translation>
-    </Paragraph>
-    <Paragraph>
-      <p>People often miss small details when they are distracted.</p>
-      <Translation>分心时，人们常常错过细节。</Translation>
-    </Paragraph>
-  </ExamArticle>
-
-  <Question id="reading-demo-001" type="single">
-    <p lang="en">What makes familiar places interesting?</p>
-
-    <Option correct>Careful observation.</Option>
-    <Option>Expensive equipment.</Option>
-    <Option>A longer journey.</Option>
-    <Option>More visitors.</Option>
-
-    <Solution>
-
-    **解析：**定位第一段 `Evidence` 标记句，`Careful observation` 对应题干问法。其它选项缺乏原文依据。
-
-    </Solution>
-  </Question>
-</EnglishReading>
-~~~
-
-- `ExamArticle`：`title`、`titleTranslation`、`source`；文章分段保留原文的自然段顺序。
-- `Paragraph` 包含正文，可以用内部 `<p>...</p>`；`Translation` 放对应段的中文翻译。二者可选，不一定每段都有翻译。
-- `Evidence for="reading-demo-001"`：标注**该题的定位依据**，必须与某个 `Question id` 完全一致。可标多处，**不能**用错 id；作答后可触发“原文定位”。
-- 题目、选项和解析完全复用上一节的 `Question / Option / Solution`，所以五种题型及答案规则不变。
-- 页面有宽屏左右分栏（分隔条可拖动）、窄屏原文/题目切换、译文开关、原文高亮、字号、展开阅读学习卡片与逐题判分/整篇提交；这些是内建交互，文档无需手工写按钮。整篇提交模式中，选择先存草稿、通过「提交全部」统一判分，未作答题不判分。
-- 题干含“Paragraph 2”等段落引用时，组件可生成跳段快捷入口；写作时注意引用的实际段号。
-
-## 三、fumadocs-study：MindMap / Markmap 交互思维导图
+## 二、fumadocs-study：MindMap / Markmap 交互思维导图
 
 这是 `MindMap` **自定义组件**，内部使用 `markmap-lib` + `markmap-view`，并非 Fumadocs 官方的 Mermaid；它接收 **Markdown 字符串**，不是把 `<MindMap>` 下方的普通列表自动转成树。
 
@@ -362,7 +301,7 @@ Props：
 
 源码：`components/mdx/mind-map.tsx`、`components/mdx/mind-map-hook.ts`。
 
-## 四、fumadocs-study：WordCards 单词卡片与短语卡
+## 三、fumadocs-study：WordCards 单词卡片与短语卡
 
 注册组件：`WordCards` + `WordCardModeToggle`；来源：`components/vocabulary/word-card-content.tsx`、`components/vocabulary/word-cards.tsx`；真实示例：`content/docs/english/word-cards-demo.mdx` 与 `data/vocabulary/word-cards-demo.json`。
 
@@ -436,14 +375,13 @@ import demoWords from '../../../data/vocabulary/word-cards-demo.mjs';
 
 ## 动态篇每次更新的核对清单
 
-1. 比对 `exam-docs/components/mdx.tsx`：当前注册的题目及阅读组件名字；`components/question/question.tsx` / `parts.tsx`：类型和 Props；`lib/remark-question.ts`：编译限制。
-2. 查看 `exam-docs/docs/question-components.md` 和 `docs/english-reading-component.md` 是否更新，并用 `content/docs/question-types.mdx`、`content/docs/english/index.mdx` 检验示例。
+1. 比对 `exam-docs/components/mdx.tsx`：当前注册的题目组件名字；`components/question/question.tsx` / `parts.tsx`：类型和 Props；`lib/remark-question.ts`：编译限制。
+2. 查看 `exam-docs/docs/question-components.md` 是否更新，并用 `content/docs/question-types.mdx` 检验示例。
 3. 比对 `fumadocs-study/components/mdx.tsx`、`components/mdx/mind-map.tsx`、`components/vocabulary/word-card-content.tsx` 及示例数据。
 4. 优先更新本文件中的准确组件树、属性表和最小可运行示例；不要修改稳定篇的官方 API 描述。
 5. 运行各自项目已有构建与测试（至少 MDX 编译和题目结构校验）；确认新例子适用于实际注册表。若未验证，不声称已通过。
 
 **源代码入口**
 - https://github.com/ActiveInsighter/exam-docs/blob/main/docs/question-components.md
-- https://github.com/ActiveInsighter/exam-docs/blob/main/docs/english-reading-component.md
 - https://github.com/ActiveInsighter/fumadocs-study/blob/main/components/mdx/mind-map.tsx
 - https://github.com/ActiveInsighter/fumadocs-study/blob/main/components/vocabulary/word-card-content.tsx
