@@ -5,7 +5,7 @@ description: 编写 Fumadocs Markdown/MDX 文档的规范与实用组件指南�
 
 # MyFumadocs · Markdown 与官方组件（稳定篇）
 
-本 Skill 用于在 Fumadocs 中创建、整理、改写 `.md` / `.mdx` 文档。**本文件仅维护通用 Markdown 与 Fumadocs 官方能力**；两个站点的自定义组件单独维护在 [自定义组件与实例](references/custom-components.md)。写普通教程时只读本篇；涉及题目、阅读、单词卡、思维导图时再读取后者。
+本 Skill 用于在 Fumadocs 中创建、整理、改写 `.md` / `.mdx` 文档。**本文件仅维护通用 Markdown 与 Fumadocs 官方能力**；两个站点的自定义组件单独维护在 [自定义组件与实例](references/custom-components.md)。写普通教程时只读本篇；涉及题目、单词卡、思维导图时再读取后者。
 
 ## 最高优先级：数学公式统一使用美元符号
 
@@ -327,5 +327,5 @@ import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
 - 官方 Markdown：https://www.fumadocs.dev/docs/markdown
 - 官方组件：https://www.fumadocs.dev/docs/ui/components
 - 自定义组件：[`references/custom-components.md`](references/custom-components.md)
-- 目标源码：`ActiveInsighter/exam-docs` 的 `components/mdx.tsx`、`docs/question-components.md`、`docs/english-reading-component.md`；`ActiveInsighter/fumadocs-study` 的 `components/mdx.tsx` 等。
+- 目标源码：`ActiveInsighter/exam-docs` 的 `components/mdx.tsx`、`docs/question-components.md`；`ActiveInsighter/fumadocs-study` 的 `components/mdx.tsx` 等。
 - **稳定篇**主要随 Fumadocs 官方 API 更新；**动态篇**必须在自定义组件 API 改动时单独校对，示例以当前源码而非旧文章为准。
