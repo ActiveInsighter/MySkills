@@ -15,7 +15,7 @@ Fumadocs spacious 布局、主题与排版沿用 `fumadocs-study` / `exam-docs`�
 
 | 名称 | 用途 |
 | --- | --- |
-| myfumadocs | Markdown / MDX、官方 Fumadocs 特色组件及两站自定义组件（题目、阅读、思维导图、词卡），通用稳定篇与动态篇分离 |
+| myfumadocs | Markdown / MDX、官方 Fumadocs 特色组件及两站自定义组件（题目、思维导图、词卡），通用稳定篇与动态篇分离 |
 | frontend-design | 前端视觉设计 |
 | shadcn | shadcn / Base UI 组件 |
 | design-system-patterns | 设计 Token、主题与组件架构 |
@@ -27,36 +27,7 @@ Fumadocs spacious 布局、主题与排版沿用 `fumadocs-study` / `exam-docs`�
 | supabase | Supabase 开发与排障 |
 | supabase-postgres-best-practices | Postgres、SQL、索引与 RLS |
 
-维护 `skills/<name>/` 内的源文件；其中 `skills/myfumadocs/SKILL.md` 为官方规范稳定篇、`skills/myfumadocs/references/custom-components.md` 为自定义组件动态篇。数学公式写作必须使用 `$...# MySkills
-
-两个 Fumadocs 项目相关的 11 个 Skill，供自己查阅与 AI 按需读取。
-
-- 网站：https://myskills.any1.tech
-- MCP：https://myskills.any1.tech/mcp（Streamable HTTP，无认证）
-- 仓库：https://github.com/ActiveInsighter/MySkills
-- 项目目录：`/home/dev/Documents/Project/MySkills`
-
-Fumadocs spacious 布局、主题与排版沿用 `fumadocs-study` / `exam-docs`，未配置数学公式插件。初始演示文章已移除。
-
-## Skill 来源与维护
-
-`skills/` 保存从本机共用 Skill 目录迁入的快照，以及新建的 MyFumadocs 自维护文档。保留原始 `SKILL.md`、规则、参考文件、脚本、资源及源目录中已有的许可证；同步时不执行 Skill 内的脚本。
-
-| 名称 | 用途 |
-| --- | --- |
-| myfumadocs | Markdown / MDX、官方 Fumadocs 特色组件及两站自定义组件（题目、阅读、思维导图、词卡），通用稳定篇与动态篇分离 |
-| frontend-design | 前端视觉设计 |
-| shadcn | shadcn / Base UI 组件 |
-| design-system-patterns | 设计 Token、主题与组件架构 |
-| tailwind-design-system | Tailwind CSS v4 设计系统 |
-| vercel-composition-patterns | React 组件组合 |
-| vercel-react-best-practices | React / Next.js 性能 |
-| web-design-guidelines | 网页体验与无障碍审查 |
-| playwright-cli | 浏览器交互验证 |
-| supabase | Supabase 开发与排障 |
-| supabase-postgres-best-practices | Postgres、SQL、索引与 RLS |
-
- / `$...$`。中文标题、适用场景与标签在 `skills/catalog.json` 中维护。`scripts/sync-skills.mjs` 生成阅读页与原始文件导出，内部相对链接指向对应阅读页或原始资源。
+维护 `skills/<name>/` 内的源文件；其中 `skills/myfumadocs/SKILL.md` 为官方规范稳定篇、`skills/myfumadocs/references/custom-components.md` 为自定义组件动态篇。数学公式写作必须使用 `$...$` / `$$...$$`。中文标题、适用场景与标签在 `skills/catalog.json` 中维护。`scripts/sync-skills.mjs` 生成阅读页与原始文件导出，内部相对链接指向对应阅读页或原始资源。
 
 生成的 Skill 阅读页不作为第二份手动维护的源。`content/docs/` 中只保留站点入口、Skill 目录和 AI 接入说明。
 
