@@ -10,52 +10,89 @@ concurrency:
   group: myskills-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npm run cf:types
-      - run: npm run typecheck
-      - run: npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: myskills-assets
-          path: out
-          retention-days: 7
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: validate
-    runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - uses: actions/download-artifact@v4
+      - name: Install dependencies once
+        run: npm ci --no-audit --no-fund
+      # Stable within a UTC week: source edits are checked by Next/Turbopack,
+      # not treated as a reason to upload a new immutable cache each push.
+      - name: Choose compiler cache generation
+        id: cache-week
+        run: echo "week=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+      - name: Restore small Next compiler cache
+        id: compiler-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-myskills-next-bounded-v1-${{ hashFiles('package-lock.json', 'next.config.mjs', 'source.config.ts', 'tsconfig.json') }}-${{ steps.cache-week.outputs.week }}
+          restore-keys: |
+            ${{ runner.os }}-myskills-next-bounded-v1-${{ hashFiles('package-lock.json', 'next.config.mjs', 'source.config.ts', 'tsconfig.json') }}-
+      - name: Run regression tests
+        run: npm test
+      - name: Generate Cloudflare types
+        run: npm run cf:types
+      - name: Check application and Worker types
+        run: npm run typecheck
+      - name: Build static assets
+        run: npm run build
+      - name: Check cache size
+        id: cache-size
+        shell: bash
+        run: |
+          bytes=0
+          if [[ -d .next/cache ]]; then
+            bytes="$(du -sb .next/cache | cut -f1)"
+          fi
+          echo "Next cache: $bytes bytes (exact hit: ${{ steps.compiler-cache.outputs.cache-hit }})" >> "$GITHUB_STEP_SUMMARY"
+          if (( bytes > 0 && bytes <= 134217728 )); then
+            echo "save=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "save=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping cache upload (empty or >128 MiB)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Save bounded compiler cache
+        if: ${{ steps.compiler-cache.outputs.cache-hit != 'true' && steps.cache-size.outputs.save == 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: .next/cache
+          key: ${{ steps.compiler-cache.outputs.cache-primary-key }}
+      - name: Preserve PR build for inspection
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
         with:
           name: myskills-assets
           path: out
+          retention-days: 1
+      # Deployment occurs on the same runner as validation. No second npm ci,
+      # artifact round-trip or duplicated Node setup.
       - name: Check deployment credentials
         id: credentials
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::Cloudflare secrets are not configured. Build validated; run npm run deploy locally or configure repository secrets."
+            echo "::notice::Cloudflare credentials missing; build validated without deploy."
             echo "ready=false" >> "$GITHUB_OUTPUT"
           fi
-      - if: steps.credentials.outputs.ready == 'true'
+      - name: Deploy validated static assets
+        if: steps.credentials.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deploy
-      - if: steps.credentials.outputs.ready == 'true'
+      - name: Verify live MCP endpoint
+        if: steps.credentials.outputs.ready == 'true'
         run: npm run e2e
