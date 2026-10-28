@@ -7,7 +7,7 @@
 - 仓库：https://github.com/ActiveInsighter/MySkills
 - 项目目录：`/home/dev/Documents/Project/MySkills`
 
-Fumadocs spacious 布局、主题与排版沿用 `fumadocs-study` / `exam-docs`，未配置数学公式插件。初始演示文章已移除。
+Fumadocs spacious 布局、主题与排版沿用 `study-docs` / `exam-docs`，未配置数学公式插件。初始演示文章已移除。
 
 ## Skill 来源与维护
 
@@ -27,7 +27,7 @@ Fumadocs spacious 布局、主题与排版沿用 `fumadocs-study` / `exam-docs`�
 | supabase | Supabase 开发与排障 |
 | supabase-postgres-best-practices | Postgres、SQL、索引与 RLS |
 
-维护 `skills/<name>/` 内的源文件；其中 `skills/myfumadocs/SKILL.md` 为官方规范稳定篇、`skills/myfumadocs/references/custom-components.md` 为自定义组件动态篇。数学公式写作必须使用 `$...$` / `$$...$$`。中文标题、适用场景与标签在 `skills/catalog.json` 中维护。`scripts/sync-skills.mjs` 生成阅读页与原始文件导出，内部相对链接指向对应阅读页或原始资源。
+维护 `skills/<name>/` 内的源文件；其中 `skills/myfumadocs/SKILL.md` 提供 Markdown 与官方组件用法，`skills/myfumadocs/references/custom-components.md` 提供 Exam Docs / Study Docs 组件示例。数学公式写作必须使用 `$...$` / `$$...$$`。中文标题、适用场景与标签在 `skills/catalog.json` 中维护。`scripts/sync-skills.mjs` 生成阅读页与 Skill 文件导出，内部相对链接指向对应阅读页或资源。
 
 生成的 Skill 阅读页不作为第二份手动维护的源。`content/docs/` 中只保留站点入口、Skill 目录和 AI 接入说明。
 
@@ -54,7 +54,7 @@ npm run verify:browser
 - `/llms.txt`：入口索引和 AI 使用步骤，不展开所有参考文档。
 - `/api/search`：构建期导出的 ZBSearch 索引，支持中英文浏览器内搜索。
 
-静态导出规范化中文路径；Skill 原始文件保持 UTF-8 和原始字节。
+静态导出规范化中文路径；Skill 文件保持 UTF-8 编码与字节一致。
 
 ## MCP：逐步发现、按需读取
 
