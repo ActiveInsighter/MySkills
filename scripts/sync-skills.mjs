@@ -65,11 +65,10 @@ for (const item of skillCatalog) {
     const description = file === 'SKILL.md' ? item.description : `${item.title} · ${file}`;
     // DocsTitle already renders the article heading; keep the original heading in raw files.
     const body = rewriteLinks(parsed.content.replace(/^\s*# [^\n]*(?:\r?\n|$)/, ''), item.id, file, markdownFiles);
-    const note = `> 原始文件：[${file}](/skill-files/${item.id}/${file})。AI 可调用 \`read_skill\`，参数 \`name: "${item.id}"\`、\`path: "${file}"\` 读取原文。\n\n`;
     const fm = `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(description)}\n---\n\n`;
     const destination = path.join(docsDir, file === 'SKILL.md' ? 'index.md' : file);
     await mkdir(path.dirname(destination), { recursive: true });
-    await writeFile(destination, fm + note + body, 'utf8');
+    await writeFile(destination, fm + body, 'utf8');
   }
   await writeFile(path.join(docsDir, 'meta.json'), JSON.stringify({ title: item.title, pages: ['index', '...'] }) + '\n');
   const summary = { name: item.id, title: item.title, description: item.description, originalDescription: data.description, tags: item.tags, source: item.source, url: `${origin}/docs/skills/${item.id}`, markdown: `${origin}/docs/skills/${item.id}.md`, skill_url: `${origin}/skill-files/${item.id}/SKILL.md`, files_count: files.length };
@@ -78,7 +77,7 @@ for (const item of skillCatalog) {
 }
 await writeFile('public/skills.json', JSON.stringify(summaries, null, 2) + '\n');
 await writeFile('content/docs/skills/meta.json', JSON.stringify({ title: 'Skills', pages: ['index', ...skillCatalog.map(s => s.id)] }) + '\n');
-const intro = `---\ntitle: Skills\ndescription: 两个 Fumadocs 项目相关的 ${skillCatalog.length} 个 Skill，按任务选择并读取。\n---\n\n以下 Skill 包含从本机迁入的共用规范与本项目维护的专属规范；均保留原始入口、参考文件和配套资源。\n\n## 按任务选择\n\n`;
+const intro = `---\ntitle: Skills\ndescription: 两个 Fumadocs 项目相关的 ${skillCatalog.length} 个 Skill，按任务选择并读取。\n---\n\n以下 Skill 包含可直接使用的规则、示例和参考资料。\n\n## 按任务选择\n\n`;
 const rows = skillCatalog.map(s => `| [${s.title}](/docs/skills/${s.id}) | \`${s.id}\` | ${s.description} |`).join('\n');
 await writeFile('content/docs/skills/index.md', intro + '| Skill | 名称 | 适用场景 |\n| --- | --- | --- |\n' + rows + '\n\n## 让 AI 按需读取\n\n通过 [MCP 使用说明](/docs/ai) 连接后，先调用 `list_skills` 查询名称和适用场景，再调用 `read_skill` 读取相关入口。需要具体规则时，沿入口中的引用继续读取，无需一次加载全部内容。\n');
 console.log(`Synced ${summaries.length} Skills with original resources and reading pages.`);

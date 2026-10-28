@@ -1,22 +1,19 @@
-# MyFumadocs · 自定义组件（动态篇）
+# MyFumadocs · Exam Docs 与 Study Docs 组件
 
-> **版本敏感 / 经常变化。** 本文基于 `ActiveInsighter/exam-docs` 和 `ActiveInsighter/fumadocs-study` 的真实组件映射、Props 类型、作者说明及实际 MDX 示例整理。更新站点时重新核对源码，**不要**把这里当成永远不变的官方 Fumadocs API。通用 Markdown、数学公式和官方组件请先读 [稳定篇](../SKILL.md)。
+Exam Docs 使用题目与解析组件；Study Docs 使用思维导图和单词卡。Markdown 与官方组件见 [组件用法](../SKILL.md)。
 
 ## 统一规则
 
 - **所有数学公式**严格使用 `$...$`（行内）和 `$$...$$`（独立）。不采用 `\( ... \)` / `\[ ... \]`；即使从 PDF/OCR 或别处迁移也统一改成美元符号。
-- 这些组件由各自项目 `components/mdx.tsx` 注册；**`exam-docs` 的 `Question` 不能默认用于 `fumadocs-study`，`fumadocs-study` 的 `MindMap`/`WordCards` 也不能默认用于 `exam-docs`**。
+- Exam Docs 使用 `Question / Option / Blank / Solution`；Study Docs 使用 `MindMap / WordCards / WordCardModeToggle`。
 - 用 `.mdx` 承载 JSX 和 JS 表达式；涉及嵌套组件时，每个开闭标签完整配对，标签之间保留空行以避免 Markdown 被当纯文本。
 - 所有例子使用示意 `id`，实际同一站点内不得重复。迁移内容时保留原图 / SVG 的路径，检查资源存在与大小写。
-- 自定义组件变更应先核对 `components/mdx.tsx` → 组件 Props / 解析器 → `docs/*.md` → `content/docs/*.mdx` 实例 → 测试，随后只更新**本动态篇**，不轻易改稳定篇。
 
-## 一、exam-docs：题目与解答组件（最重要）
+## Exam Docs：题目与解答
 
-入口：`components/mdx.tsx`；详细规范：`docs/question-components.md`；示例：`content/docs/question-types.mdx`；编译验证：`lib/remark-question.ts`。
+使用 `Question`、`Option`、`Blank`、`Solution`。标准答案写在对应属性中，解析写在 `Solution` 内；不使用 `<Answer>`、`<Explanation>` 或旧版 `ExamAnswer` 等标签。
 
-**当前支持四个作者组件：`Question`、`Option`、`Blank`、`Solution`。** 目前**没有**可直接使用的独立 `<Answer>` 或 `<Explanation>` 标签；不要把旧版本的 `ExamAnswer / ExamExplanation / ExamQuestion` 写法迁入。
-
-### Question 属性、题目身份与题号（2026-10-26 核对源码）
+### Question 属性与题号
 
 ~~~mdx
 <Question
@@ -178,7 +175,7 @@ TCP 位于 <Blank answer="传输层" aliases={["运输层"]} />；设 $f(x)=x^2$
 - `answer` 必填，可为字符串或数字，答案写法遵守数学判分器支持的**表达式文本**，如 `"2x"`、`"1/2"`；**不要在 `answer` 属性里套 `$`，它不是 LaTeX 展示区**。
 - `aliases={["运输层"]}`：其它可接受文本；`kind="text"` / `kind="math"`：手动选择普通键盘或数学键盘，省略时根据答案自动判断。
 - `tolerance={0.01}`：数值答案绝对误差；`placeholder="请输入"`：提示。
-- 数学型目前比较数值 / 等价表达式，不能直接用于判定复杂矩阵、不等式、区间、证明过程；这类内容选择文本模式或解答题。
+- 数学型比较数值 / 等价表达式，不能直接用于判定复杂矩阵、不等式、区间、证明过程；这类内容选择文本模式或解答题。
 
 #### 解答题 / 大题
 
@@ -255,15 +252,14 @@ description: 考研 408 真题练习
 
 `---` 可用于分隔题目，站点会避免相邻冗余分隔线；不要额外复制“标准答案”到每道题的题干中。
 
-### 题目与解析卡片的当前 UI
+### 题目与解析卡片
 
 - **普通题目卡片**：顶栏为自动题号、题型图标和分值、题目特征；来源路径单列显示；右侧有收藏 / 用户标签 / 注释。中间是题干和选项或填空，底部为判分结果和「查看解答」。`Solution` 的内容不会提前显示。
 - **「查看解答」学习卡片**：桌面左侧灰色面板展示只读题目镜像、考点与个人注释，右侧白色面板对非 essay 题先展示**结构化标准答案与用户答案对照**，再展示 `Solution` 对应的「解析」；essay 题右侧为「参考解答」，随后提供「正确 / 部分正确 / 错误」自评。手机端单列堆叠，长题目可折叠。
 - 顶部支持**上一题 / 下一题**切换（亦支持键盘左右键 / 滑动）；「收藏与标签」库作为学习卡片的下一页进入。分页、对照、答案标记由组件提供，MDX 不应手写独立的 `Answer` / `Explanation`、翻页按钮或第二套题干。
 - `Solution` 最多一个、须为直接子元素且放在最后；编译器**不强制每个题型必须有 Solution**。但 essay 题务必提供完整参考解答，否则无法有效自评。
 
-
-## 二、fumadocs-study：MindMap / Markmap 交互思维导图
+## Study Docs：MindMap / Markmap
 
 这是 `MindMap` **自定义组件**，内部使用 `markmap-lib` + `markmap-view`，并非 Fumadocs 官方的 Mermaid；它接收 **Markdown 字符串**，不是把 `<MindMap>` 下方的普通列表自动转成树。
 
@@ -297,13 +293,11 @@ Props：
 - `maxWidth?`：节点文字最大宽度，默认 `280`；`className?` 可选。
 - 工具栏包含缩放、适配视图、全部展开/折叠、恢复默认、全屏；无需在内容中重复定义。
 
-**注意：**标注为 ````mermaid` 的围栏绘制 Mermaid；`MindMap markdown={...}` 才是交互 Markmap。不要用 ````markmap` 围栏代替当前已注册的组件，除非后续专门实现了该语法。
+Mermaid 使用 `mermaid` 围栏；交互 Markmap 使用 `<MindMap markdown={...} />`。
 
-源码：`components/mdx/mind-map.tsx`、`components/mdx/mind-map-hook.ts`。
+## Study Docs：WordCards 单词与短语卡
 
-## 三、fumadocs-study：WordCards 单词卡片与短语卡
-
-注册组件：`WordCards` + `WordCardModeToggle`；来源：`components/vocabulary/word-card-content.tsx`、`components/vocabulary/word-cards.tsx`；真实示例：`content/docs/english/word-cards-demo.mdx` 与 `data/vocabulary/word-cards-demo.json`。
+使用 `WordCards` 和 `WordCardModeToggle`。
 
 在 MDX 中传入**结构化对象数组**，不要写每张卡一套不受支持的 `<WordCard>...</WordCard>` JSX。
 
@@ -342,7 +336,7 @@ Props：
 />
 ~~~
 
-### 数据模型（以源码 Props 为准）
+### WordCards 数据模型
 
 | 对象 | 属性 | 含义 |
 | --- | --- | --- |
@@ -357,11 +351,11 @@ Props：
 | `WordExample` | `text: string`、`translation: string`（均必填） | 英文原句与中文翻译 |
 
 - 比例通常按同一单词下的 `count / sum(count)` 计算；`percentage` 可以覆盖，需为合理数值。
-- `WordCardModeToggle` 的当前四种实际模式为 **`compact` 精简、`dictation` 默写（隐藏单词/音标）、`translation` 翻译（隐藏释义）、`full` 完整**；状态由 `WordCardsProvider` 管理并保存在 localStorage。只需在页面放一次切换器，无需逐卡手写模式状态。
+- `WordCardModeToggle` 支持四种模式： **`compact` 精简、`dictation` 默写（隐藏单词/音标）、`translation` 翻译（隐藏释义）、`full` 完整**；状态由 `WordCardsProvider` 管理并保存在 localStorage。只需在页面放一次切换器，无需逐卡手写模式状态。
 - 数据量大时优先把数组维护在 `data/vocabulary/*.mjs` / `*.json`，通过 `import` 传给 `<WordCards words={...} />`，可用 `slice(start,end)` 按单元拆分；不要在数百张 MDX 卡片里重复复制对象。
 - `WordCards` 的 `words` 必填，`empty` 可选（词数组为空时显示替代内容）。缺少 `meanings` 或数据结构错误会导致组件无法正常显示；优先匹配现有演示数据 schema。
 
-外部数据示例（与仓库现状一致）：
+外部数据示例：
 
 ~~~mdx
 import demoWords from '../../../data/vocabulary/word-cards-demo.mjs';
@@ -371,17 +365,4 @@ import demoWords from '../../../data/vocabulary/word-cards-demo.mjs';
 <WordCards words={demoWords} />
 ~~~
 
-相对路径根据**MDX 文件所处目录**调整，勿机械复制。
-
-## 动态篇每次更新的核对清单
-
-1. 比对 `exam-docs/components/mdx.tsx`：当前注册的题目组件名字；`components/question/question.tsx` / `parts.tsx`：类型和 Props；`lib/remark-question.ts`：编译限制。
-2. 查看 `exam-docs/docs/question-components.md` 是否更新，并用 `content/docs/question-types.mdx` 检验示例。
-3. 比对 `fumadocs-study/components/mdx.tsx`、`components/mdx/mind-map.tsx`、`components/vocabulary/word-card-content.tsx` 及示例数据。
-4. 优先更新本文件中的准确组件树、属性表和最小可运行示例；不要修改稳定篇的官方 API 描述。
-5. 运行各自项目已有构建与测试（至少 MDX 编译和题目结构校验）；确认新例子适用于实际注册表。若未验证，不声称已通过。
-
-**源代码入口**
-- https://github.com/ActiveInsighter/exam-docs/blob/main/docs/question-components.md
-- https://github.com/ActiveInsighter/fumadocs-study/blob/main/components/mdx/mind-map.tsx
-- https://github.com/ActiveInsighter/fumadocs-study/blob/main/components/vocabulary/word-card-content.tsx
+相对导入路径按 MDX 文件位置调整。

@@ -44,6 +44,10 @@ test('all Skills preserve every original resource and expose reference pages', a
   assert.match(myfumadocs.raw, /remarkMdxFiles/);
   assert.match(myfumadocs.raw, /<Files>/);
   assert.match(custom.raw, /<Question/);
+  assert.match(custom.raw, /Study Docs/);
+  assert.doesNotMatch(myfumadocs.raw, /最重要|最高优先级|当前工程|原始文件|版本敏感|fumadocs-study/);
+  assert.doesNotMatch(custom.raw, /最重要|当前工程|原始文件|版本敏感|fumadocs-study/);
+  assert.doesNotMatch(myfumadocs.raw, /原始文件：/);
   const shadcn = pages.find(p => p.url === '/docs/skills/shadcn');
   assert.match(shadcn.raw, /\]\(\/docs\/skills\/shadcn\/rules\/base-vs-radix\)/);
   const playwright = pages.find(p => p.url === '/docs/skills/playwright-cli');

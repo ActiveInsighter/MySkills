@@ -1,19 +1,19 @@
 ---
 name: myfumadocs
-description: 编写 Fumadocs Markdown/MDX 文档的规范与实用组件指南。包含标题、链接、Mermaid、严格的美元符号数学公式，以及 Accordion、Auto Type Table、Code Block、Steps、Tabs、Type Table、Cards、Callout、Files；面向 exam-docs 和 fumadocs-study 的自定义组件另见独立参考文件。
+description: 编写 Fumadocs Markdown/MDX 文档的规范与实用组件指南。包含标题、链接、Mermaid、严格的美元符号数学公式，以及 Accordion、Auto Type Table、Code Block、Steps、Tabs、Type Table、Cards、Callout、Files；面向 exam-docs 和 Study Docs 的自定义组件另见参考文件。
 ---
 
-# MyFumadocs · Markdown 与官方组件（稳定篇）
+# MyFumadocs · Markdown / MDX 与官方组件
 
-本 Skill 用于在 Fumadocs 中创建、整理、改写 `.md` / `.mdx` 文档。**本文件仅维护通用 Markdown 与 Fumadocs 官方能力**；两个站点的自定义组件单独维护在 [自定义组件与实例](references/custom-components.md)。写普通教程时只读本篇；涉及题目、单词卡、思维导图时再读取后者。
+编写 Fumadocs 文档时直接使用下列语法和组件。Exam Docs 题目组件、Study Docs 思维导图和单词卡见 [自定义组件](references/custom-components.md)。
 
-## 最高优先级：数学公式统一使用美元符号
+## 数学公式
 
 - **行内公式只能写** `$...$`：例如 `$f(x)=x^2$`、`$\lim_{x\to0}\frac{\sin x}{x}=1$`。
 - **独立公式只能写** `$$...$$`：推荐前后留空行，公式内容独占一行。
 - **严禁用** `\( ... \)`、`\[ ... \]` **作为数学定界符**；不要把公式改成截图、HTML、普通代码或省略反斜线。
 - 数学源代码保留原始 LaTeX 命令 `\frac`、`\sum`、`\begin{aligned}` 等；长推导优先 `aligned`，不要把代码中的美元符号（例如价格）误当成公式。
-- 渲染取决于目标工程是否配置 `remark-math` / `rehype-katex`；`exam-docs` 已配置，`fumadocs-study` 请以当前 `source.config.ts` 为准。**MySkills 自己是否渲染数学公式不影响本 Skill 对目标文档的要求。**
+- 数学渲染使用 `remark-math` 与 `rehype-katex`。
 
 ~~~mdx
 设 $f(x)=x^2$，则 $f'(x)=2x$。
@@ -30,7 +30,7 @@ $$
 $$
 ~~~
 
-## 普通 Markdown / MDX 速查（简要）
+## Markdown / MDX
 
 | 能力 | 写法 |
 | --- | --- |
@@ -56,11 +56,11 @@ flowchart LR
 ```
 ~~~
 
-> Mermaid 是流程图，**不是** Markmap 思维导图。后者属于 `fumadocs-study` 自定义 `MindMap`，见动态篇。Mermaid 本身需要工程集成：官方文档并未提供不经配置就能使用的通用内置渲染器。
+Mermaid 用于流程图；Study Docs 交互思维导图使用 [`MindMap`](references/custom-components.md)。使用 Mermaid 前启用相应渲染插件。
 
-## 官方特色组件（重点）
+## 官方组件
 
-**组件使用前先看当前工程的 `components/mdx.tsx` 映射。** `exam-docs` 与 `fumadocs-study` 已全局注册 `Accordion/Accordions`、`Step/Steps`、`Tab/Tabs`、`TypeTable`，Fumadocs 默认提供 `Callout`、`Card/Cards` 等。它们在这两个项目的 MDX 中通常无需每页导入。未注册的组件不可仅靠书写 JSX 生效。
+Exam Docs 与 Study Docs 已全局注册 `Accordion`、`Steps`、`Tabs`、`TypeTable`、`Files` 等组件，MDX 页面直接写下列 JSX 即可。`AutoTypeTable` 等扩展按对应小节安装。
 
 ### 1. Accordion / Accordions · 可折叠知识点、FAQ
 
@@ -82,17 +82,17 @@ flowchart LR
 </Accordions>
 ~~~
 
-官方还提供单/多项展开相关配置；具体以当前安装的 Fumadocs/Base UI 版本为准。不要把 `Accordion` 单独当成容器。参考：https://www.fumadocs.dev/docs/ui/components/accordion
+需要多项时用 `Accordions` 包裹 `Accordion`。参考：https://www.fumadocs.dev/docs/ui/components/accordion
 
 ### 2. Auto Type Table · 从 TypeScript 类型自动生成字段文档
 
-`AutoTypeTable` **不等于** `TypeTable`。它属于单独的 `fumadocs-typescript` 包，使用 TypeScript 编译器分析类型，适合 API、类型定义变化频繁的工程。**两个现有站点当前全局组件映射不含 `AutoTypeTable`，必须先安装并注册，再使用以下写法。**
+`AutoTypeTable` **不等于** `TypeTable`。它属于单独的 `fumadocs-typescript` 包，使用 TypeScript 编译器分析类型，适合 API、类型定义变化频繁的工程。先安装 `fumadocs-typescript` 并注册该组件。
 
 ~~~bash
 npm install fumadocs-typescript
 ~~~
 
-在站点 `components/mdx.tsx` 中根据官方文档使用 `createGenerator` + `AutoTypeTable` 注册到 MDX 映射（服务端组件，不能直接放进客户端组件）；然后：
+在 `components/mdx.tsx` 中用 `createGenerator` 和 `AutoTypeTable` 注册服务端组件，之后：
 
 ~~~mdx
 <AutoTypeTable path="src/types/config.ts" name="ConfigOptions" />
@@ -120,7 +120,7 @@ pnpm install
 ```
 ~~~
 
-底层组件是 `CodeBlock` / `Pre`；它们一般在 `components/mdx.tsx` 中通过 `pre` 映射包装，不应凭空写一个未导入、未注册的 `<CodeBlock>`。以上代码 Tabs 与下面的内容 `Tabs` 不是一回事。参考：https://www.fumadocs.dev/docs/ui/components/codeblock 和 https://www.fumadocs.dev/docs/markdown
+代码围栏由 `pre` 映射渲染；代码 Tabs 使用 `tab`，内容切换使用 `Tabs`。参考：https://www.fumadocs.dev/docs/ui/components/codeblock 和 https://www.fumadocs.dev/docs/markdown
 
 ### 4. Steps / Step · 分阶段教程
 
@@ -177,7 +177,7 @@ pnpm install
 
 ### 6. Type Table · 手动描述参数、数据结构或配置项
 
-不需要从 TypeScript 类型自动推导时，直接用 **已全局注册的** `TypeTable`，显式维护字段说明，适用于公开 API、配置参数、Props、数据结构。
+用 `TypeTable` 描述 API 参数、配置字段、Props 和数据结构。
 
 ~~~mdx
 <TypeTable
@@ -202,12 +202,11 @@ pnpm install
 
 常用条目属性：`type`、`description`、`default`、`required`、`deprecated`、`parameters`、`returns`。区别：**TypeTable 是手动数据，AutoTypeTable 是自动类型分析**。参考：https://www.fumadocs.dev/docs/ui/components/type-table
 
-
 ### 7. Cards / Card · 信息卡片、章节入口与图标网格
 
-`Cards` 是卡片布局容器，`Card` 是单个卡片。适合首页导航、章节入口、术语介绍、知识点概览和资源推荐。**它也能做纯展示卡片，并非每一张都必须能点击。** Fumadocs 默认 MDX 组件已包含 `Cards` / `Card`；在 `exam-docs` 和 `fumadocs-study` 使用时，仍以当前 MDX 组件映射为准。
+`Cards` 是卡片布局容器，`Card` 是单个卡片。适合首页导航、章节入口、术语介绍、知识点概览和资源推荐。不设置 `href` 可用于纯展示。
 
-**最常用的写法**：用 `<Cards>` 包裹多个 `<Card>`，`title` 是标题，标签内部是说明文字，`href` 是目标链接；不提供 `href` 时就是普通信息卡片。容器采用响应式卡片网格，无须臆造 `columns` 等不存在的属性。
+用 `<Cards>` 包裹多个 `<Card>`；`title` 是标题，`href` 是可选链接，不提供则为展示卡片。
 
 ~~~mdx
 <Cards>
@@ -226,7 +225,7 @@ pnpm install
 </Cards>
 ~~~
 
-**像官方 Terminology 页面那样放置图标**：`icon` 接收 React 节点，可传入 `lucide-react` 图标。以下示例放在允许 MDX `import` 的页面中；若站点不允许页面级导入，应先在工程的 MDX 组件映射中注册图标，而不是直接写未定义组件。
+`icon` 接收 React 节点，可使用 `lucide-react` 图标：
 
 ~~~mdx
 import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
@@ -244,7 +243,7 @@ import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
 </Cards>
 ~~~
 
-常用属性：`title`（标题）、`href`（可选链接）、`icon`（可选图标）、`children`（正文说明）；具体版本还支持 `description` / `external` 等属性，优先使用上面稳定的基础写法。
+常用属性：`title`、`href`、`icon`、`children`。
 
 - **导航卡片**：设置 `href`，内部链接使用站点实际路径，外链使用完整的 `https://` URL。
 - **知识点/术语卡片**：不设置 `href`，可配图标和简短解释；截图中的 Terminology 卡片属于这一类。
@@ -265,7 +264,7 @@ import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
 | `success` | 正确、完成 | 验证成功、正确做法 |
 | `idea` | 灵感、技巧 | 解题技巧、拓展思路 |
 
-以下均可直接放入已启用默认 Fumadocs MDX 组件的文档：
+示例：
 
 ~~~mdx
 <Callout>
@@ -293,7 +292,7 @@ import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
 </Callout>
 ~~~
 
-`Callout` 正文支持多段文字、加粗、行内代码、列表和公式（公式遵循本 Skill 的美元符号标准）。**需要 Markdown 列表或多段内容时，在 JSX 标签与 Markdown 块之间留空行**：
+`Callout` 支持 Markdown、列表和公式；嵌套块内容前后留空行：
 
 ~~~mdx
 <Callout type="warn" title="复习前检查">
@@ -311,13 +310,11 @@ import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
 
 ### 9. Files / Folder / File · 可折叠文件树与项目目录结构
 
-`Files` 是文件树容器，`Folder` 表示目录，`File` 表示文件。适合展示项目目录、模块布局、示例工程结构和文件用途；目录可以展开、收起。**这是内容展示组件，不是网站侧边栏的页面导航树，也不会自动读取磁盘文件。**
+`Files` 是文件树容器，`Folder` 表示目录，`File` 表示文件。适合展示项目目录、模块布局、示例工程结构和文件用途；目录可以展开、收起。
 
-**方式一：直接使用 MDX 组件（通用、无额外 Remark 插件）**。如果当前工程未在 `components/mdx.tsx` 中全局注册，允许页面级导入的 MDX 文件可显式导入：
+**MDX 组件写法：**
 
 ~~~mdx
-import { File, Folder, Files } from "fumadocs-ui/components/files";
-
 <Files>
   <Folder name="app" defaultOpen>
     <File name="layout.tsx" />
@@ -334,7 +331,7 @@ import { File, Folder, Files } from "fumadocs-ui/components/files";
 </Files>
 ~~~
 
-如果站点已将 `Files`、`Folder`、`File` 注册为全局 MDX 组件，就**删除上面 `import` 行**，直接使用 JSX。`exam-docs` 的 `components/mdx.tsx` 已通过 `...FilesComponents` 全局注册；其他工程（包括 `fumadocs-study`）应检查自身当前映射，不要假定自动存在。
+Exam Docs、Study Docs 可直接使用这些组件。其他站点需先从 `fumadocs-ui/components/files` 导入或在 MDX 映射中注册。
 
 **常用属性：**
 
@@ -347,7 +344,7 @@ import { File, Folder, Files } from "fumadocs-ui/components/files";
 | `File` | `name`（必填） | 文件名，通常自闭合 |
 | `File` | `icon`（可选） | 传入 React 节点以自定义图标，需先导入对应图标组件 |
 
-**方式二：`files` 代码围栏（需要启用 Remark 插件）**。如果希望直接粘贴终端树形文本，在 Fumadocs MDX 的 `source.config.ts` 中启用 `remark-mdx-files`：
+**`files` 代码围栏：**要转换树形文本，在 `source.config.ts` 中启用 `remark-mdx-files`：
 
 ~~~ts
 import { remarkMdxFiles } from "fumadocs-core/mdx-plugins/remark-mdx-files";
@@ -374,24 +371,24 @@ my-project
 ```
 ~~~
 
-启用同一插件后，还可以用 `<auto-files>` 从项目目录匹配文件并生成文件树：
+同一插件支持 `<auto-files>` 自动读取目录：
 
 ~~~mdx
 <auto-files dir="./my-dir" pattern="**/*.{ts,tsx}" />
 <auto-files dir="./my-dir" pattern="**/*.{ts,tsx}" defaultOpenAll />
 ~~~
 
-`dir` 与 `pattern` 须指向构建时可访问的实际目录与文件。未启用 `remarkMdxFiles` 时，**不要**把 `files` 围栏或 `<auto-files>` 当作可直接交互的官方组件；普通代码围栏只是文本。
+`dir` 与 `pattern` 指向构建时可访问的文件路径；`files` 围栏和 `<auto-files>` 需要 `remarkMdxFiles`。
 
-**方式三：使用官方 CLI 生成静态文件树 MDX**（适合已有大量文件的项目）：
+**CLI 生成文件树：**
 
 ~~~bash
 npx @fumadocs/cli tree ./my-dir ./files.mdx
 ~~~
 
-命令会生成可编辑的 `<Files>` 文件树结构；生成后按当前工程组件映射决定是否保留 import。它不是运行时自动更新目录的机制。
+生成 `<Files>` MDX 结构，可直接编辑。
 
-**写作建议：** 文件树尽量只保留说明所需的层级；完整路径要区分文件与文件夹；需要一开始展开的关键目录使用 `defaultOpen`；不要臆造 `Files` 的 `items` 数组式接口，也不要将 `Folder` 当作文件节点。普通 `.md` 内容若未经过 MDX 编译，直接写 `<Files>` JSX 不会自动变成组件。
+文件与目录分别用 `File`、`Folder`；要初始展开目录，设置 `defaultOpen`。普通 `.md` 文件需经过 MDX 编译才能渲染 JSX。
 
 官方参考：https://www.fumadocs.dev/docs/ui/components/files；CLI：https://www.fumadocs.dev/docs/cli
 ### 其他官方组件（了解即可）
@@ -405,12 +402,12 @@ npx @fumadocs/cli tree ./my-dir ./files.mdx
 4. 是否保留原图片、SVG、链接的相对路径，Mermaid 语法与插件是否匹配？
 5. `Card` 的 `href` 可选，`Callout` 使用有效的 `type`，图标组件已经导入或注册？
 6. `Files`、`Folder`、`File` 已导入或映射？使用 `files` 围栏或 `<auto-files>` 时，`remarkMdxFiles` 是否已启用？
-7. 写入 `exam-docs` / `fumadocs-study` 的私有组件内容之前，是否额外读取了 [自定义组件动态篇](references/custom-components.md)？
+7. 写入 `exam-docs` / `study-docs` 的私有组件内容之前，是否额外读取了 [自定义组件动态篇](references/custom-components.md)？
 
 ## 来源与维护边界
 
 - 官方 Markdown：https://www.fumadocs.dev/docs/markdown
 - 官方组件：https://www.fumadocs.dev/docs/ui/components
 - 自定义组件：[`references/custom-components.md`](references/custom-components.md)
-- 目标源码：`ActiveInsighter/exam-docs` 的 `components/mdx.tsx`、`docs/question-components.md`；`ActiveInsighter/fumadocs-study` 的 `components/mdx.tsx` 等。
+- 目标源码：`ActiveInsighter/exam-docs` 的 `components/mdx.tsx`、`docs/question-components.md`；`ActiveInsighter/study-docs` 的 `components/mdx.tsx` 等。
 - **稳定篇**主要随 Fumadocs 官方 API 更新；**动态篇**必须在自定义组件 API 改动时单独校对，示例以当前源码而非旧文章为准。
