@@ -2,7 +2,7 @@
   {
     "id": "myfumadocs",
     "title": "MyFumadocs 文档与组件写法",
-    "description": "Fumadocs Markdown / MDX、美元符号数学公式、八类重点官方组件（含 Cards/Card、Callout），以及 exam-docs 题目与解析、fumadocs-study 思维导图与单词卡片。",
+    "description": "Fumadocs Markdown / MDX、美元符号数学公式、九类重点官方组件（含 Cards/Card、Callout、Files 文件树），以及 exam-docs 题目与解析、fumadocs-study 思维导图与单词卡片。",
     "tags": [
       "Fumadocs",
       "MDX",
@@ -29,6 +29,11 @@
       "Cards",
       "Card",
       "Callout",
+      "Files",
+      "Folder",
+      "File",
+      "文件树",
+      "文件结构",
       "提示框",
       "警告"
     ],

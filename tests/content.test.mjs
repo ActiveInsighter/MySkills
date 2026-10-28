@@ -40,6 +40,9 @@ test('all Skills preserve every original resource and expose reference pages', a
   assert.ok(custom, 'MyFumadocs custom reference is published');
   assert.match(myfumadocs.raw, /\/docs\/skills\/myfumadocs\/references\/custom-components/);
   assert.match(myfumadocs.raw, /\$\.\.\.\$/);
+  assert.match(myfumadocs.raw, /### 9\. Files \/ Folder \/ File/);
+  assert.match(myfumadocs.raw, /remarkMdxFiles/);
+  assert.match(myfumadocs.raw, /<Files>/);
   assert.match(custom.raw, /<Question/);
   const shadcn = pages.find(p => p.url === '/docs/skills/shadcn');
   assert.match(shadcn.raw, /\]\(\/docs\/skills\/shadcn\/rules\/base-vs-radix\)/);

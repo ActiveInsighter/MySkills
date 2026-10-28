@@ -1,6 +1,6 @@
 ---
 name: myfumadocs
-description: 编写 Fumadocs Markdown/MDX 文档的规范与实用组件指南。包含标题、链接、Mermaid、严格的美元符号数学公式，以及 Accordion、Auto Type Table、Code Block、Steps、Tabs、Type Table、Cards、Callout；面向 exam-docs 和 fumadocs-study 的自定义组件另见独立参考文件。
+description: 编写 Fumadocs Markdown/MDX 文档的规范与实用组件指南。包含标题、链接、Mermaid、严格的美元符号数学公式，以及 Accordion、Auto Type Table、Code Block、Steps、Tabs、Type Table、Cards、Callout、Files；面向 exam-docs 和 fumadocs-study 的自定义组件另见独立参考文件。
 ---
 
 # MyFumadocs · Markdown 与官方组件（稳定篇）
@@ -309,8 +309,92 @@ import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
 
 官方参考：https://www.fumadocs.dev/docs/markdown#callouts
 
+### 9. Files / Folder / File · 可折叠文件树与项目目录结构
+
+`Files` 是文件树容器，`Folder` 表示目录，`File` 表示文件。适合展示项目目录、模块布局、示例工程结构和文件用途；目录可以展开、收起。**这是内容展示组件，不是网站侧边栏的页面导航树，也不会自动读取磁盘文件。**
+
+**方式一：直接使用 MDX 组件（通用、无额外 Remark 插件）**。如果当前工程未在 `components/mdx.tsx` 中全局注册，允许页面级导入的 MDX 文件可显式导入：
+
+~~~mdx
+import { File, Folder, Files } from "fumadocs-ui/components/files";
+
+<Files>
+  <Folder name="app" defaultOpen>
+    <File name="layout.tsx" />
+    <File name="page.tsx" />
+    <Folder name="api">
+      <File name="route.ts" />
+    </Folder>
+  </Folder>
+  <Folder name="components">
+    <File name="button.tsx" />
+    <File name="tabs.tsx" />
+  </Folder>
+  <File name="package.json" />
+</Files>
+~~~
+
+如果站点已将 `Files`、`Folder`、`File` 注册为全局 MDX 组件，就**删除上面 `import` 行**，直接使用 JSX。`exam-docs` 的 `components/mdx.tsx` 已通过 `...FilesComponents` 全局注册；其他工程（包括 `fumadocs-study`）应检查自身当前映射，不要假定自动存在。
+
+**常用属性：**
+
+| 组件 | 属性 | 用途 |
+| --- | --- | --- |
+| `Files` | `children` | 包裹根目录、目录及文件节点 |
+| `Folder` | `name`（必填） | 目录名，支持嵌套 `Folder` / `File` |
+| `Folder` | `defaultOpen`（可选） | 初始展开该目录；省略时默认折叠 |
+| `Folder` | `disabled`（可选） | 禁用目录交互；仅在确有需求时使用 |
+| `File` | `name`（必填） | 文件名，通常自闭合 |
+| `File` | `icon`（可选） | 传入 React 节点以自定义图标，需先导入对应图标组件 |
+
+**方式二：`files` 代码围栏（需要启用 Remark 插件）**。如果希望直接粘贴终端树形文本，在 Fumadocs MDX 的 `source.config.ts` 中启用 `remark-mdx-files`：
+
+~~~ts
+import { remarkMdxFiles } from "fumadocs-core/mdx-plugins/remark-mdx-files";
+import { defineConfig } from "fumadocs-mdx/config";
+
+export default defineConfig({
+  mdxOptions: {
+    remarkPlugins: [remarkMdxFiles],
+  },
+});
+~~~
+
+然后在 MDX 中使用以下围栏；构建时插件会将目录文本转换为 `Files` 组件：
+
+~~~mdx
+```files
+my-project
+├── app
+│   ├── layout.tsx
+│   └── page.tsx
+├── components
+│   └── button.tsx
+└── package.json
+```
+~~~
+
+启用同一插件后，还可以用 `<auto-files>` 从项目目录匹配文件并生成文件树：
+
+~~~mdx
+<auto-files dir="./my-dir" pattern="**/*.{ts,tsx}" />
+<auto-files dir="./my-dir" pattern="**/*.{ts,tsx}" defaultOpenAll />
+~~~
+
+`dir` 与 `pattern` 须指向构建时可访问的实际目录与文件。未启用 `remarkMdxFiles` 时，**不要**把 `files` 围栏或 `<auto-files>` 当作可直接交互的官方组件；普通代码围栏只是文本。
+
+**方式三：使用官方 CLI 生成静态文件树 MDX**（适合已有大量文件的项目）：
+
+~~~bash
+npx @fumadocs/cli tree ./my-dir ./files.mdx
+~~~
+
+命令会生成可编辑的 `<Files>` 文件树结构；生成后按当前工程组件映射决定是否保留 import。它不是运行时自动更新目录的机制。
+
+**写作建议：** 文件树尽量只保留说明所需的层级；完整路径要区分文件与文件夹；需要一开始展开的关键目录使用 `defaultOpen`；不要臆造 `Files` 的 `items` 数组式接口，也不要将 `Folder` 当作文件节点。普通 `.md` 内容若未经过 MDX 编译，直接写 `<Files>` JSX 不会自动变成组件。
+
+官方参考：https://www.fumadocs.dev/docs/ui/components/files；CLI：https://www.fumadocs.dev/docs/cli
 ### 其他官方组件（了解即可）
-- `Files` 族组件可展示文件树，需在当前工程映射中启用；本项目已引入。
 - 图片、SVG：优先 Markdown 图片引用，保持可访问的 `alt`，避免无谓转换为截图。
 
 ## 输出前检查
@@ -320,7 +404,8 @@ import { BookOpenIcon, DatabaseIcon, TerminalIcon } from 'lucide-react';
 3. 有没有把 `AutoTypeTable` 错当成已经启用，或者把代码块 `tab` 与内容 `Tabs` 混淆？
 4. 是否保留原图片、SVG、链接的相对路径，Mermaid 语法与插件是否匹配？
 5. `Card` 的 `href` 可选，`Callout` 使用有效的 `type`，图标组件已经导入或注册？
-6. 写入 `exam-docs` / `fumadocs-study` 的私有组件内容之前，是否额外读取了 [自定义组件动态篇](references/custom-components.md)？
+6. `Files`、`Folder`、`File` 已导入或映射？使用 `files` 围栏或 `<auto-files>` 时，`remarkMdxFiles` 是否已启用？
+7. 写入 `exam-docs` / `fumadocs-study` 的私有组件内容之前，是否额外读取了 [自定义组件动态篇](references/custom-components.md)？
 
 ## 来源与维护边界
 
